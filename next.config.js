@@ -1,10 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  experimental: {
-    appDir: false
-  },
   async rewrites() {
     return [
       {
@@ -25,11 +21,7 @@ const nextConfig = {
         ]
       }
     ];
-  },
-  // Optimize for Vercel deployment
-  output: 'standalone',
-  poweredByHeader: false,
-  compress: true
+  }
 }
 
 module.exports = nextConfig
