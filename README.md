@@ -5,6 +5,16 @@ A real-time multiplayer web game where players compete to name football players 
 ## Game Overview
 
 Players take turns naming football players whose names start with consecutive letters of the alphabet. Think fast - you only have 30 seconds per letter!
+## Screenshots
+
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin: 2rem 0;">
+  <a href="assets/Screenshot1.png"><img src="assets/Screenshot1.png" alt="Screenshot 1" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
+  <a href="assets/Screenshot2.png"><img src="assets/Screenshot2.png" alt="Screenshot 2" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
+  <a href="assets/Screenshot3.png"><img src="assets/Screenshot3.png" alt="Screenshot 3" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
+  <a href="assets/Screenshot4.png"><img src="assets/Screenshot4.png" alt="Screenshot 4" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
+  <a href="assets/Screenshot5.png"><img src="assets/Screenshot5.png" alt="Screenshot 5" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
+</div>
+
 
 ## Features
 
