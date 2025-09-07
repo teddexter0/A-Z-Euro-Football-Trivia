@@ -43,7 +43,7 @@ Players take turns naming football players whose names start with consecutive le
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/az-football-game
+git clone https://github.com/teddexter0/A-Z-Euro-Football-Trivia
 cd az-football-game
 
 # Install dependencies

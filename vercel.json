@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "name": "az-football-game",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/socketio",
+      "dest": "/api/socketio"
+    },
+    {
+      "src": "/socket.io/(.*)",
+      "dest": "/api/socketio"
+    }
+  ],
+  "functions": {
+    "pages/api/socketio.js": {
+      "maxDuration": 60
+    },
+    "pages/api/players/[mode].js": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
