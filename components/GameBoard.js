@@ -30,6 +30,17 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   
   const fuseRef = useRef(null);
   const socketRef = useRef(null);
+  const playerDatabaseRef = useRef([]);
+
+  // Helper function to normalize player names
+  const normalizePlayerName = (name) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z\s]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
 
   // Initialize socket connection
   useEffect(() => {
@@ -39,19 +50,18 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         setConnectionStatus('connecting');
         setMessage('🔌 Connecting to server...');
         
-        // Initialize Socket.io endpoint
         await fetch('/api/socketio');
         
-        // Create socket
-        
-const newSocket = io({
-  path: '/api/socketio',
-  transports: ['polling'], // ONLY polling
-  upgrade: false, // Don't try to upgrade to websocket
-  timeout: 20000,
-  forceNew: true,
-  autoConnect: true
-});
+        const newSocket = io({
+          path: '/api/socketio',
+          transports: ['polling'],
+          upgrade: false,
+          rememberUpgrade: false,
+          timeout: 30000,
+          forceNew: true,
+          autoConnect: true,
+          withCredentials: false
+        });
         
         socketRef.current = newSocket;
 
@@ -61,7 +71,6 @@ const newSocket = io({
           setSocket(newSocket);
           setMessage('✅ Connected! Joining room...');
           
-          // Join room
           newSocket.emit('join-room', { roomId, playerName });
         });
 
@@ -173,7 +182,7 @@ const newSocket = io({
     };
   }, [roomId, playerName]);
 
-  // Load player database
+  // Load player database with enhanced debugging
   useEffect(() => {
     const loadPlayers = async () => {
       try {
@@ -181,19 +190,32 @@ const newSocket = io({
         console.log(`📊 Loading ${gameMode} players...`);
         
         const mode = gameMode === 'icons' ? 'legacy' : 'modern';
-        const response = await fetch(`/api/players/${mode}`);
+        const apiUrl = `/api/players/${mode}`;
+        
+        console.log('🔗 Fetching from:', apiUrl);
+        const response = await fetch(apiUrl);
+        
+        console.log('📡 Response status:', response.status);
         
         if (!response.ok) {
-          throw new Error(`Failed: ${response.status}`);
+          throw new Error(`API failed: ${response.status} - ${response.statusText}`);
         }
         
         const data = await response.json();
-        console.log(`✅ Loaded ${data.length} players`);
+        console.log(`✅ Loaded ${data.length} players for ${mode} mode`);
+        console.log('🎯 Sample players:', data.slice(0, 5));
         
+        // Store in ref for validation
+        playerDatabaseRef.current = data;
+        
+        // Initialize fuzzy search with more lenient settings
         fuseRef.current = new Fuse(data, {
-          threshold: 0.3,
-          distance: 100,
-          includeScore: true
+          threshold: 0.5, // More lenient matching for mobile
+          distance: 200,
+          includeScore: true,
+          minMatchCharLength: 2,
+          ignoreLocation: true,
+          ignoreFieldNorm: true
         });
         
         setIsLoading(false);
@@ -227,6 +249,9 @@ const newSocket = io({
     setSubmitted(true);
     const validation = validatePlayer(answer, gameState.currentLetter);
     
+    console.log('📝 Validation result:', validation);
+    console.log('🎯 Player database size:', playerDatabaseRef.current.length);
+    
     socket.emit('submit-answer', {
       roomId,
       playerName,
@@ -236,26 +261,112 @@ const newSocket = io({
       points: validation.valid ? LETTER_SCORES[gameState.currentLetter] : 0
     });
     
-    setMessage(validation.valid ? `✅ "${answer}"` : `❌ "${answer}" - invalid`);
+    setMessage(validation.valid ? `✅ "${answer}"` : `❌ "${answer}" - ${validation.reason}`);
   };
 
+  // Enhanced validation function
   const validatePlayer = (input, letter) => {
-    if (!input.toLowerCase().startsWith(letter.toLowerCase())) {
-      return { valid: false, reason: 'wrong_letter' };
+    const trimmedInput = input.trim();
+    
+    // Check empty input
+    if (!trimmedInput) {
+      return { valid: false, reason: 'empty' };
     }
     
-    if (gameState.usedPlayers?.includes(input.toLowerCase())) {
-      return { valid: false, reason: 'used' };
+    // Check starting letter
+    if (!trimmedInput.toLowerCase().startsWith(letter.toLowerCase())) {
+      return { valid: false, reason: 'wrong letter' };
     }
     
-    if (fuseRef.current) {
-      const results = fuseRef.current.search(input);
-      if (results.length > 0 && results[0].score < 0.3) {
-        return { valid: true, matchedPlayer: results[0].item };
+    // Normalize input for comparison
+    const normalizedInput = normalizePlayerName(trimmedInput);
+    
+    // Check if already used (with better conflict detection)
+    const isAlreadyUsed = gameState.usedPlayers?.some(usedPlayer => {
+      const normalizedUsed = normalizePlayerName(usedPlayer);
+      
+      // Exact match
+      if (normalizedUsed === normalizedInput) return true;
+      
+      // Check for substring conflicts (Henry vs Thierry Henry)
+      if (normalizedUsed.length > 3 && normalizedInput.length > 3) {
+        const words1 = normalizedUsed.split(' ');
+        const words2 = normalizedInput.split(' ');
+        
+        // If any word appears in both, consider it a conflict
+        return words1.some(word1 => 
+          words2.some(word2 => 
+            word1.length > 2 && word2.length > 2 && 
+            (word1.includes(word2) || word2.includes(word1))
+          )
+        );
+      }
+      
+      return false;
+    });
+    
+    if (isAlreadyUsed) {
+      return { valid: false, reason: 'already used' };
+    }
+    
+    // Enhanced fuzzy search
+    if (fuseRef.current && playerDatabaseRef.current.length > 0) {
+      const results = fuseRef.current.search(trimmedInput);
+      
+      console.log('🔍 Fuzzy search results:', results.slice(0, 3));
+      
+      if (results.length > 0) {
+        // Check multiple results for better matching
+        for (let i = 0; i < Math.min(results.length, 5); i++) {
+          const result = results[i];
+          const matchedPlayer = result.item;
+          
+          // More lenient scoring for cross-device compatibility
+          if (result.score < 0.6) {
+            const normalizedMatched = normalizePlayerName(matchedPlayer);
+            
+            // Check if this matched player conflicts with used players
+            const conflictsWithUsed = gameState.usedPlayers?.some(usedPlayer => {
+              const normalizedUsed = normalizePlayerName(usedPlayer);
+              
+              if (normalizedUsed === normalizedMatched) return true;
+              
+              // Word-level conflict detection
+              const usedWords = normalizedUsed.split(' ');
+              const matchedWords = normalizedMatched.split(' ');
+              
+              return usedWords.some(word1 => 
+                matchedWords.some(word2 => 
+                  word1.length > 2 && word2.length > 2 && 
+                  (word1.includes(word2) || word2.includes(word1))
+                )
+              );
+            });
+            
+            if (!conflictsWithUsed) {
+              console.log(`✅ Found valid match: "${trimmedInput}" -> "${matchedPlayer}" (score: ${result.score})`);
+              return { valid: true, matchedPlayer: matchedPlayer };
+            }
+          }
+        }
+      }
+      
+      // Fallback: direct string matching for common names
+      const directMatch = playerDatabaseRef.current.find(player => {
+        const normalizedPlayer = normalizePlayerName(player);
+        return normalizedPlayer === normalizedInput ||
+               normalizedPlayer.includes(normalizedInput) ||
+               normalizedInput.includes(normalizedPlayer);
+      });
+      
+      if (directMatch) {
+        console.log(`✅ Found direct match: "${trimmedInput}" -> "${directMatch}"`);
+        return { valid: true, matchedPlayer: directMatch };
       }
     }
     
-    return { valid: false, reason: 'not_found' };
+    console.log(`❌ No match found for: "${trimmedInput}"`);
+    return { valid: false, reason: 'not found' };
   };
 
   // Loading screen
