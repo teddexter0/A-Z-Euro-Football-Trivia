@@ -17,19 +17,23 @@ const SocketHandler = (req, res) => {
 
   console.log('🔄 Starting Socket.io server...');
   
-  const io = new Server(res.socket.server, {
-    path: '/api/socketio',
-    addTrailingSlash: false,
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-      credentials: true
-    },
-    transports: ['polling', 'websocket'],
-    allowEIO3: true,
-    pingTimeout: 60000,
-    pingInterval: 25000
-  });
+  
+const io = new Server(res.socket.server, {
+  path: '/api/socketio',
+  addTrailingSlash: false,
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['polling'], // ONLY polling
+  allowEIO3: true,
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  allowRequest: (req, callback) => {
+    callback(null, true);
+  }
+});
 
   res.socket.server.io = io;
 

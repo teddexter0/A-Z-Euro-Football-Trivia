@@ -43,13 +43,15 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         await fetch('/api/socketio');
         
         // Create socket
-        const newSocket = io({
-          path: '/api/socketio',
-          transports: ['polling', 'websocket'],
-          timeout: 20000,
-          forceNew: true,
-          autoConnect: true
-        });
+        
+const newSocket = io({
+  path: '/api/socketio',
+  transports: ['polling'], // ONLY polling
+  upgrade: false, // Don't try to upgrade to websocket
+  timeout: 20000,
+  forceNew: true,
+  autoConnect: true
+});
         
         socketRef.current = newSocket;
 
