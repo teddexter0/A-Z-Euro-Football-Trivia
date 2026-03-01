@@ -49,17 +49,12 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         console.log('🔌 Connecting to Socket.io...');
         setConnectionStatus('connecting');
         setMessage('🔌 Connecting to server...');
-        
-        await fetch('/api/socketio');
-        
+
         const newSocket = io({
           path: '/api/socketio',
-          transports: ['polling'],
-          upgrade: false,
-          rememberUpgrade: false,
-          timeout: 30000,
+          transports: ['websocket', 'polling'],
+          timeout: 20000,
           forceNew: true,
-          autoConnect: true,
           withCredentials: false
         });
         
