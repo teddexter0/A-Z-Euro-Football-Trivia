@@ -201,15 +201,18 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         console.log(`✅ Loaded ${data.length} players for ${mode} mode`);
         console.log('🎯 Sample players:', data.slice(0, 5));
         
-        // Store in ref for validation
+        // Store originals for display; build normalized version for Fuse
+        // so accents are stripped before comparison:
+        // "Fabregas" -> "fabregas" matches "Cesc Fàbregas" -> "cesc fabregas"
+        // "Modric"   -> "modric"   matches "Luka Modrić"   -> "luka modric"
         playerDatabaseRef.current = data;
-        
-        // Initialize fuzzy search with more lenient settings
-        fuseRef.current = new Fuse(data, {
-          threshold: 0.5, // More lenient matching for mobile
+        const normalizedForFuse = data.map(name => normalizePlayerName(name));
+
+        fuseRef.current = new Fuse(normalizedForFuse, {
+          threshold: 0.4,
           distance: 200,
           includeScore: true,
-          minMatchCharLength: 2,
+          minMatchCharLength: 3,
           ignoreLocation: true,
           ignoreFieldNorm: true
         });
@@ -310,58 +313,52 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
       return { valid: false, reason: 'already used' };
     }
     
-    // Enhanced fuzzy search
+    // Fuzzy search: search normalized input against normalized DB,
+    // then recover the original name via refIndex for display
     if (fuseRef.current && playerDatabaseRef.current.length > 0) {
-      const results = fuseRef.current.search(trimmedInput);
-      
+      const results = fuseRef.current.search(normalizedInput);
+
       console.log('🔍 Fuzzy search results:', results.slice(0, 3));
-      
+
       if (results.length > 0) {
-        // Check multiple results for better matching
         for (let i = 0; i < Math.min(results.length, 5); i++) {
           const result = results[i];
-          const matchedPlayer = result.item;
-          
-          // More lenient scoring for cross-device compatibility
-          if (result.score < 0.6) {
-            const normalizedMatched = normalizePlayerName(matchedPlayer);
-            
-            // Check if this matched player conflicts with used players
+          // recover original (accented) name by index
+          const matchedPlayer = playerDatabaseRef.current[result.refIndex];
+          const normalizedMatched = result.item; // already normalized
+
+          if (result.score < 0.5) {
             const conflictsWithUsed = gameState.usedPlayers?.some(usedPlayer => {
               const normalizedUsed = normalizePlayerName(usedPlayer);
-              
               if (normalizedUsed === normalizedMatched) return true;
-              
-              // Word-level conflict detection
               const usedWords = normalizedUsed.split(' ');
               const matchedWords = normalizedMatched.split(' ');
-              
-              return usedWords.some(word1 => 
-                matchedWords.some(word2 => 
-                  word1.length > 2 && word2.length > 2 && 
-                  (word1.includes(word2) || word2.includes(word1))
+              return usedWords.some(w1 =>
+                matchedWords.some(w2 =>
+                  w1.length > 2 && w2.length > 2 && (w1.includes(w2) || w2.includes(w1))
                 )
               );
             });
-            
+
             if (!conflictsWithUsed) {
-              console.log(`✅ Found valid match: "${trimmedInput}" -> "${matchedPlayer}" (score: ${result.score})`);
-              return { valid: true, matchedPlayer: matchedPlayer };
+              console.log(`✅ Fuzzy match: "${trimmedInput}" -> "${matchedPlayer}" (score: ${result.score})`);
+              return { valid: true, matchedPlayer };
             }
           }
         }
       }
-      
-      // Fallback: direct string matching for common names
-      // Only use .includes() when input is at least 4 chars to avoid single-letter false matches
-      const directMatch = playerDatabaseRef.current.find(player => {
+
+      // Fallback: exact or substring match on normalized names
+      // Requires >= 4 chars to avoid single-letter false positives
+      const directIdx = playerDatabaseRef.current.findIndex(player => {
         const normalizedPlayer = normalizePlayerName(player);
         return normalizedPlayer === normalizedInput ||
                (normalizedInput.length >= 4 && normalizedPlayer.includes(normalizedInput));
       });
-      
-      if (directMatch) {
-        console.log(`✅ Found direct match: "${trimmedInput}" -> "${directMatch}"`);
+
+      if (directIdx !== -1) {
+        const directMatch = playerDatabaseRef.current[directIdx];
+        console.log(`✅ Direct match: "${trimmedInput}" -> "${directMatch}"`);
         return { valid: true, matchedPlayer: directMatch };
       }
     }
