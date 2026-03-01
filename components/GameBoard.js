@@ -7,6 +7,30 @@ const LETTER_SCORES = {
   N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8, Y: 4, Z: 10
 };
 
+// Common nicknames / shorthand → canonical DB name.
+// The alias key must start with the same letter as the round letter,
+// since the letter-check runs before alias resolution.
+// e.g. "CR7" is valid during the C round → resolves to "Cristiano Ronaldo"
+//      "Leo" / "Leo Messi" → valid during L round → "Lionel Messi"
+const PLAYER_ALIASES = {
+  'cr7':          'Cristiano Ronaldo',
+  'leo':          'Lionel Messi',
+  'leo messi':    'Lionel Messi',
+  'la pulga':     'Lionel Messi',
+  'r9':           'Ronaldo Nazário',
+  'ronaldo r9':   'Ronaldo Nazário',
+  'el fenomeno':  'Ronaldo Nazário',
+  'il fenomeno':  'Ronaldo Nazário',
+  'ibra':         'Zlatan Ibrahimović',
+  'dinho':        'Ronaldinho',
+  'kaka':         'Kaká',
+  'vvd':          'Virgil van Dijk',
+  'taa':          'Trent Alexander-Arnold',
+  'kdb':          'Kevin De Bruyne',
+  'rvp':          'Robin van Persie',
+  'the king':     'Eric Cantona',
+};
+
 const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
@@ -185,7 +209,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         setIsLoading(true);
         console.log(`📊 Loading ${gameMode} players...`);
         
-        const mode = gameMode === 'icons' ? 'legacy' : 'modern';
+        const mode = gameMode === 'icons' ? 'icons' : 'modern';
         const apiUrl = `/api/players/${mode}`;
         
         console.log('🔗 Fetching from:', apiUrl);
@@ -283,8 +307,30 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     }
 
     // Normalize input for comparison
-    const normalizedInput = normalizePlayerName(trimmedInput);
-    
+    let normalizedInput = normalizePlayerName(trimmedInput);
+
+    // Alias resolution: swap common nicknames for canonical DB names.
+    // e.g. "cr7" → "cristiano ronaldo", "leo messi" → "lionel messi"
+    const aliasTarget = PLAYER_ALIASES[normalizedInput];
+    if (aliasTarget) {
+      const normalizedAlias = normalizePlayerName(aliasTarget);
+      const aliasInDb = playerDatabaseRef.current.find(
+        p => normalizePlayerName(p) === normalizedAlias
+      );
+      if (aliasInDb) {
+        // Check not already used before accepting the alias
+        const aliasUsed = gameState.usedPlayers?.some(u =>
+          normalizePlayerName(u) === normalizedAlias
+        );
+        if (!aliasUsed) {
+          console.log(`✅ Alias: "${trimmedInput}" → "${aliasTarget}"`);
+          return { valid: true, matchedPlayer: aliasTarget };
+        } else {
+          return { valid: false, reason: 'already used' };
+        }
+      }
+    }
+
     // Check if already used (with better conflict detection)
     const isAlreadyUsed = gameState.usedPlayers?.some(usedPlayer => {
       const normalizedUsed = normalizePlayerName(usedPlayer);
