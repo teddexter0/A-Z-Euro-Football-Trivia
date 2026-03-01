@@ -34,6 +34,7 @@ const wordConflict = (a, b) => {
 const validateAnswer = (input, letter, usedPlayers) => {
   const trimmed = input.trim();
   if (!trimmed) return { valid: false, reason: 'empty' };
+  if (trimmed.length < 2) return { valid: false, reason: 'too_short' };
   if (!trimmed.toLowerCase().startsWith(letter.toLowerCase())) return { valid: false, reason: 'wrong_letter' };
 
   const normalized = normalizePlayerName(trimmed);
@@ -79,6 +80,7 @@ app.prepare().then(() => {
             roundAnswers: {},
             timer: 30,
             isActive: false,
+            gameStarted: false,
             gameMode: 'modern',
             winner: null,
             timerInterval: null,
@@ -113,14 +115,17 @@ app.prepare().then(() => {
         const room = gameRooms.get(roomId);
         if (!room) return socket.emit('error-message', { message: 'Room not found' });
         if (room.isActive) return socket.emit('error-message', { message: 'Game already active' });
+        if (room.gameStarted && !room.winner) return socket.emit('error-message', { message: 'Game already in progress' });
         if (Object.keys(room.players).length < 1) return socket.emit('error-message', { message: 'Need at least 1 player' });
 
         room.isActive = true;
+        room.gameStarted = true;
         room.timer = 30;
         room.roundAnswers = {};
         room.currentLetter = 'A';
         room.currentLetterIndex = 0;
         room.usedPlayers = [];
+        room.winner = null;
         room.scores = Object.fromEntries(Object.keys(room.players).map(p => [p, 0]));
 
         io.to(roomId).emit('game-started', { currentLetter: room.currentLetter, timer: room.timer });
@@ -190,6 +195,7 @@ app.prepare().then(() => {
       roundAnswers: room.roundAnswers,
       timer: room.timer,
       isActive: room.isActive,
+      gameStarted: room.gameStarted,
       gameMode: room.gameMode,
       winner: room.winner,
     };

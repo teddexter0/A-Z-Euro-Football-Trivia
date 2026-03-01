@@ -19,6 +19,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     roundAnswers: {},
     timer: 30,
     isActive: false,
+    gameStarted: false,
     gameMode: gameMode,
     winner: null
   });
@@ -268,11 +269,16 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
       return { valid: false, reason: 'empty' };
     }
     
+    // Require at least 2 characters (blocks single-initial submissions)
+    if (trimmedInput.length < 2) {
+      return { valid: false, reason: 'too short' };
+    }
+
     // Check starting letter
     if (!trimmedInput.toLowerCase().startsWith(letter.toLowerCase())) {
       return { valid: false, reason: 'wrong letter' };
     }
-    
+
     // Normalize input for comparison
     const normalizedInput = normalizePlayerName(trimmedInput);
     
@@ -347,11 +353,11 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
       }
       
       // Fallback: direct string matching for common names
+      // Only use .includes() when input is at least 4 chars to avoid single-letter false matches
       const directMatch = playerDatabaseRef.current.find(player => {
         const normalizedPlayer = normalizePlayerName(player);
         return normalizedPlayer === normalizedInput ||
-               normalizedPlayer.includes(normalizedInput) ||
-               normalizedInput.includes(normalizedPlayer);
+               (normalizedInput.length >= 4 && normalizedPlayer.includes(normalizedInput));
       });
       
       if (directMatch) {
@@ -486,7 +492,9 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     );
   }
 
-  const showStartButton = Object.keys(gameState.players).length >= 1 && !gameState.isActive;
+  const gameInProgress = gameState.gameStarted && !gameState.winner;
+  const showStartButton = Object.keys(gameState.players).length >= 1 && !gameState.isActive && !gameInProgress;
+  const showWaitingBetweenRounds = gameInProgress && !gameState.isActive;
   const playerCount = Object.keys(gameState.players).length;
 
   return (
@@ -567,7 +575,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <h3>🎮 Ready to Play!</h3>
               <p>{playerCount} player{playerCount !== 1 ? 's' : ''} in room</p>
-              <button 
+              <button
                 onClick={handleStartGame}
                 disabled={connectionStatus !== 'connected'}
                 style={{
@@ -579,6 +587,13 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
               >
                 🚀 Start Game ({playerCount} players)
               </button>
+            </div>
+          )}
+
+          {showWaitingBetweenRounds && (
+            <div style={{ textAlign: 'center', marginBottom: '20px', color: '#64748b' }}>
+              <h3>⏳ Next round starting soon...</h3>
+              <p>Letter {gameState.currentLetter} — Round {gameState.currentLetterIndex + 1}/26</p>
             </div>
           )}
           
