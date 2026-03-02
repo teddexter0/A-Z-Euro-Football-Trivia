@@ -143,7 +143,10 @@ app.prepare().then(() => {
         const room = gameRooms.get(roomId);
         if (!room || !room.isActive) return socket.emit('error-message', { message: 'Game not active' });
 
-        const serverResult = validateAnswer(answer, room.currentLetter, room.usedPlayers);
+        // Use the canonical matched name (if provided by the client) for letter
+        // validation — so aliases like "Dinho" → "Ronaldinho" pass the R-round check.
+        const effectiveAnswer = matchedPlayer || answer;
+        const serverResult = validateAnswer(effectiveAnswer, room.currentLetter, room.usedPlayers);
         const finalValid = isValid && serverResult.valid;
 
         room.roundAnswers[playerName] = {
@@ -236,7 +239,10 @@ app.prepare().then(() => {
 
       validAnswers.forEach(([, d]) => {
         if (!d.answer) return;
-        const norm = normalizePlayerName(d.answer);
+        // Store the canonical player name so aliases don't bypass deduplication.
+        // e.g. "Dinho" → matchedPlayer "Ronaldinho" → stored as "ronaldinho"
+        const canonical = d.matchedPlayer || d.answer;
+        const norm = normalizePlayerName(canonical);
         const conflict = room.usedPlayers.some(u => wordConflict(normalizePlayerName(u), norm));
         if (!conflict) room.usedPlayers.push(norm);
       });

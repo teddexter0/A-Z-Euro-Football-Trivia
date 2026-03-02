@@ -57,12 +57,23 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const socketRef = useRef(null);
   const playerDatabaseRef = useRef([]);
 
-  // Helper function to normalize player names
+  // Strips diacritics and non-alpha characters — used for DB/Fuse comparison
   const normalizePlayerName = (name) => {
     return name
       .toLowerCase()
       .trim()
       .replace(/[^a-z\s]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // Keeps numbers alongside letters — used only for alias key lookup
+  // so "CR7" → "cr7" instead of "cr", matching the PLAYER_ALIASES key
+  const normalizeForAlias = (name) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, ' ')
       .trim();
   };
@@ -233,7 +244,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         const normalizedForFuse = data.map(name => normalizePlayerName(name));
 
         fuseRef.current = new Fuse(normalizedForFuse, {
-          threshold: 0.4,
+          threshold: 0.6,
           distance: 200,
           includeScore: true,
           minMatchCharLength: 3,
@@ -287,93 +298,84 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     setMessage(validation.valid ? `✅ "${answer}"` : `❌ "${answer}" - ${validation.reason}`);
   };
 
-  // Enhanced validation function
+  // Validation function
   const validatePlayer = (input, letter) => {
     const trimmedInput = input.trim();
-    
-    // Check empty input
-    if (!trimmedInput) {
-      return { valid: false, reason: 'empty' };
-    }
-    
-    // Require at least 2 characters (blocks single-initial submissions)
-    if (trimmedInput.length < 2) {
-      return { valid: false, reason: 'too short' };
+
+    if (!trimmedInput) return { valid: false, reason: 'empty' };
+    if (trimmedInput.length < 2) return { valid: false, reason: 'too short' };
+
+    // ── 1. Alias check FIRST (before letter check) ──────────────────────────
+    // Use normalizeForAlias so "CR7" → "cr7" matches the alias key (not "cr")
+    const aliasKey = normalizeForAlias(trimmedInput);
+    const aliasTarget = PLAYER_ALIASES[aliasKey];
+    if (aliasTarget) {
+      // Validate using the canonical name's first letter, not the raw input.
+      // "Dinho" → "Ronaldinho" → must be R round, not D round.
+      if (aliasTarget[0].toUpperCase() === letter.toUpperCase()) {
+        const normalizedAlias = normalizePlayerName(aliasTarget);
+        const aliasInDb = playerDatabaseRef.current.find(
+          p => normalizePlayerName(p) === normalizedAlias
+        );
+        if (aliasInDb) {
+          const aliasUsed = gameState.usedPlayers?.some(
+            u => normalizePlayerName(u) === normalizedAlias
+          );
+          if (!aliasUsed) {
+            console.log(`✅ Alias: "${trimmedInput}" → "${aliasTarget}"`);
+            return { valid: true, matchedPlayer: aliasTarget };
+          }
+          return { valid: false, reason: 'already used' };
+        }
+      }
+      // Alias found but letter doesn't match → fall through to regular matching
     }
 
-    // Check starting letter
+    // ── 2. Letter check ──────────────────────────────────────────────────────
     if (!trimmedInput.toLowerCase().startsWith(letter.toLowerCase())) {
       return { valid: false, reason: 'wrong letter' };
     }
 
-    // Normalize input for comparison
-    let normalizedInput = normalizePlayerName(trimmedInput);
+    const normalizedInput = normalizePlayerName(trimmedInput);
 
-    // Alias resolution: swap common nicknames for canonical DB names.
-    // e.g. "cr7" → "cristiano ronaldo", "leo messi" → "lionel messi"
-    const aliasTarget = PLAYER_ALIASES[normalizedInput];
-    if (aliasTarget) {
-      const normalizedAlias = normalizePlayerName(aliasTarget);
-      const aliasInDb = playerDatabaseRef.current.find(
-        p => normalizePlayerName(p) === normalizedAlias
-      );
-      if (aliasInDb) {
-        // Check not already used before accepting the alias
-        const aliasUsed = gameState.usedPlayers?.some(u =>
-          normalizePlayerName(u) === normalizedAlias
-        );
-        if (!aliasUsed) {
-          console.log(`✅ Alias: "${trimmedInput}" → "${aliasTarget}"`);
-          return { valid: true, matchedPlayer: aliasTarget };
-        } else {
-          return { valid: false, reason: 'already used' };
-        }
-      }
-    }
-
-    // Check if already used (with better conflict detection)
+    // ── 3. Already-used check ────────────────────────────────────────────────
     const isAlreadyUsed = gameState.usedPlayers?.some(usedPlayer => {
       const normalizedUsed = normalizePlayerName(usedPlayer);
-      
-      // Exact match
       if (normalizedUsed === normalizedInput) return true;
-      
-      // Check for substring conflicts (Henry vs Thierry Henry)
       if (normalizedUsed.length > 3 && normalizedInput.length > 3) {
         const words1 = normalizedUsed.split(' ');
         const words2 = normalizedInput.split(' ');
-        
-        // If any word appears in both, consider it a conflict
-        return words1.some(word1 => 
-          words2.some(word2 => 
-            word1.length > 2 && word2.length > 2 && 
+        return words1.some(word1 =>
+          words2.some(word2 =>
+            word1.length > 2 && word2.length > 2 &&
             (word1.includes(word2) || word2.includes(word1))
           )
         );
       }
-      
       return false;
     });
-    
-    if (isAlreadyUsed) {
-      return { valid: false, reason: 'already used' };
-    }
-    
-    // Fuzzy search: search normalized input against normalized DB,
-    // then recover the original name via refIndex for display
+    if (isAlreadyUsed) return { valid: false, reason: 'already used' };
+
+    // ── 4. Fuzzy search ──────────────────────────────────────────────────────
     if (fuseRef.current && playerDatabaseRef.current.length > 0) {
       const results = fuseRef.current.search(normalizedInput);
-
       console.log('🔍 Fuzzy search results:', results.slice(0, 3));
 
       if (results.length > 0) {
         for (let i = 0; i < Math.min(results.length, 5); i++) {
           const result = results[i];
-          // recover original (accented) name by index
           const matchedPlayer = playerDatabaseRef.current[result.refIndex];
           const normalizedMatched = result.item; // already normalized
 
-          if (result.score < 0.5) {
+          if (result.score < 0.6) {
+            // Word-boundary guard: at least one word in the matched name must
+            // START WITH the input. Prevents "dinho" (D round) from matching
+            // "Ronaldinho" whose only word "ronaldinho" starts with "r".
+            const hasWordMatch = normalizedMatched
+              .split(' ')
+              .some(word => word.startsWith(normalizedInput));
+            if (!hasWordMatch) continue;
+
             const conflictsWithUsed = gameState.usedPlayers?.some(usedPlayer => {
               const normalizedUsed = normalizePlayerName(usedPlayer);
               if (normalizedUsed === normalizedMatched) return true;
@@ -394,12 +396,12 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         }
       }
 
-      // Fallback: exact or substring match on normalized names
-      // Requires >= 4 chars to avoid single-letter false positives
+      // ── 5. Direct match fallback (word-prefix, requires ≥ 4 chars) ────────
       const directIdx = playerDatabaseRef.current.findIndex(player => {
         const normalizedPlayer = normalizePlayerName(player);
         return normalizedPlayer === normalizedInput ||
-               (normalizedInput.length >= 4 && normalizedPlayer.includes(normalizedInput));
+          (normalizedInput.length >= 4 &&
+            normalizedPlayer.split(' ').some(word => word.startsWith(normalizedInput)));
       });
 
       if (directIdx !== -1) {
@@ -408,7 +410,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         return { valid: true, matchedPlayer: directMatch };
       }
     }
-    
+
     console.log(`❌ No match found for: "${trimmedInput}"`);
     return { valid: false, reason: 'not found' };
   };
