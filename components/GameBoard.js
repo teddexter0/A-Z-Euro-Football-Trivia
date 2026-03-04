@@ -7,28 +7,611 @@ const LETTER_SCORES = {
   N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8, Y: 4, Z: 10
 };
 
-// Common nicknames / shorthand → canonical DB name.
-// The alias key must start with the same letter as the round letter,
-// since the letter-check runs before alias resolution.
-// e.g. "CR7" is valid during the C round → resolves to "Cristiano Ronaldo"
-//      "Leo" / "Leo Messi" → valid during L round → "Lionel Messi"
+// Nickname / shorthand → canonical DB name.
+// Each alias is valid in the round whose letter matches the CANONICAL name's first letter.
+// e.g. 'gazza' → 'Paul Gascoigne' → valid in P round (Gascoigne starts with G but Paul starts with P)
+// e.g. 'dinho' → 'Ronaldinho'     → valid in R round
+// e.g. 'cr7'   → 'Cristiano Ronaldo' → valid in C round
 const PLAYER_ALIASES = {
-  'cr7':          'Cristiano Ronaldo',
-  'leo':          'Lionel Messi',
-  'leo messi':    'Lionel Messi',
-  'la pulga':     'Lionel Messi',
-  'r9':           'Ronaldo Nazário',
-  'ronaldo r9':   'Ronaldo Nazário',
-  'el fenomeno':  'Ronaldo Nazário',
-  'il fenomeno':  'Ronaldo Nazário',
-  'ibra':         'Zlatan Ibrahimović',
-  'dinho':        'Ronaldinho',
-  'kaka':         'Kaká',
-  'vvd':          'Virgil van Dijk',
-  'taa':          'Trent Alexander-Arnold',
-  'kdb':          'Kevin De Bruyne',
-  'rvp':          'Robin van Persie',
-  'the king':     'Eric Cantona',
+
+  // ── Lionel Messi ────────────────────────────────────────────────────────────
+  'leo':              'Lionel Messi',            // L round
+  'leo messi':        'Lionel Messi',            // L round
+  'la pulga':         'Lionel Messi',            // L round
+  'messi':            'Lionel Messi',            // L round (surname alone)
+  'el messias':       'Lionel Messi',            // L round
+
+  // ── Cristiano Ronaldo ───────────────────────────────────────────────────────
+  'cr7':              'Cristiano Ronaldo',        // C round
+  'cristiano':        'Cristiano Ronaldo',        // C round
+
+  // ── Ronaldo Nazário ────────────────────────────────────────────────────────
+  'r9':               'Ronaldo Nazário',          // R round
+  'ronaldo r9':       'Ronaldo Nazário',          // R round
+  'el fenomeno':      'Ronaldo Nazário',          // R round
+  'il fenomeno':      'Ronaldo Nazário',          // R round
+  'o fenomeno':       'Ronaldo Nazário',          // R round
+
+  // ── Zinédine Zidane ────────────────────────────────────────────────────────
+  'zizou':            'Zinédine Zidane',          // Z round
+
+  // ── Ronaldinho ─────────────────────────────────────────────────────────────
+  'dinho':            'Ronaldinho',               // R round
+  'ronaldinho gaucho':'Ronaldinho',               // R round
+
+  // ── Diego Maradona ─────────────────────────────────────────────────────────
+  'd10s':             'Diego Maradona',           // D round
+  'el diego':         'Diego Maradona',           // D round
+  'el pibe de oro':   'Diego Maradona',           // D round
+  'hand of god':      'Diego Maradona',           // D round
+
+  // ── Thierry Henry ──────────────────────────────────────────────────────────
+  'king henry':       'Thierry Henry',            // T round
+  'titi':             'Thierry Henry',            // T round
+
+  // ── Paulo Dybala ───────────────────────────────────────────────────────────
+  'la joya':          'Paulo Dybala',             // P round
+
+  // ── Paul Gascoigne ─────────────────────────────────────────────────────────
+  'gazza':            'Paul Gascoigne',           // P round
+
+  // ── David Silva ────────────────────────────────────────────────────────────
+  'el mago':          'David Silva',              // D round
+  'merlin':           'David Silva',              // D round
+
+  // ── Fernando Torres ────────────────────────────────────────────────────────
+  'el nino':          'Fernando Torres',          // F round
+
+  // ── Radamel Falcao ─────────────────────────────────────────────────────────
+  'el tigre':         'Radamel Falcao',           // R round
+
+  // ── Edinson Cavani ─────────────────────────────────────────────────────────
+  'el matador':       'Edinson Cavani',           // E round
+  'cavani':           'Edinson Cavani',           // E round
+
+  // ── Luis Suárez ────────────────────────────────────────────────────────────
+  'el pistolero':     'Luis Suárez',              // L round
+  'suarez':           'Luis Suárez',              // L round
+
+  // ── Javier Mascherano ──────────────────────────────────────────────────────
+  'el jefecito':      'Javier Mascherano',        // J round
+
+  // ── Javier Pastore ─────────────────────────────────────────────────────────
+  'el flaco':         'Javier Pastore',           // J round
+
+  // ── Nicolas Anelka ─────────────────────────────────────────────────────────
+  'le sulk':          'Nicolas Anelka',           // N round
+
+  // ── Laurent Blanc ──────────────────────────────────────────────────────────
+  'le president':     'Laurent Blanc',            // L round
+
+  // ── Franz Beckenbauer ──────────────────────────────────────────────────────
+  'der kaiser':       'Franz Beckenbauer',        // F round
+
+  // ── Oliver Kahn ────────────────────────────────────────────────────────────
+  'der titan':        'Oliver Kahn',              // O round
+
+  // ── Gerd Müller ────────────────────────────────────────────────────────────
+  'der bomber':       'Gerd Müller',              // G round
+  'bomber der nation':'Gerd Müller',              // G round
+
+  // ── Thomas Müller ──────────────────────────────────────────────────────────
+  'der raumdeuter':   'Thomas Müller',            // T round
+
+  // ── Paolo Maldini ──────────────────────────────────────────────────────────
+  'il capitano':      'Paolo Maldini',            // P round
+  'maldini':          'Paolo Maldini',            // P round
+
+  // ── Roberto Baggio ─────────────────────────────────────────────────────────
+  'il divino codino': 'Roberto Baggio',           // R round
+  'the divine ponytail':'Roberto Baggio',         // R round
+
+  // ── Andrea Pirlo ───────────────────────────────────────────────────────────
+  'il maestro':       'Andrea Pirlo',             // A round
+  'il architetto':    'Andrea Pirlo',             // A round
+
+  // ── Gianluigi Buffon ───────────────────────────────────────────────────────
+  'gigi':             'Gianluigi Buffon',         // G round
+  'gigi buffon':      'Gianluigi Buffon',         // G round
+  'supergigi':        'Gianluigi Buffon',         // G round
+
+  // ── Gianluigi Donnarumma ───────────────────────────────────────────────────
+  'gigi donnarumma':  'Gianluigi Donnarumma',     // G round
+  'gigio':            'Gianluigi Donnarumma',     // G round
+
+  // ── Thiago Silva ───────────────────────────────────────────────────────────
+  'o monstro':        'Thiago Silva',             // T round
+
+  // ── Samuel Eto'o ───────────────────────────────────────────────────────────
+  'etoo':             "Samuel Eto'o",             // S round
+  'eto':              "Samuel Eto'o",             // S round
+
+  // ── Zlatan Ibrahimović ─────────────────────────────────────────────────────
+  'ibra':             'Zlatan Ibrahimović',        // Z round
+  'zlatanovic':       'Zlatan Ibrahimović',        // Z round
+
+  // ── Kaká ───────────────────────────────────────────────────────────────────
+  'kaka':             'Kaká',                     // K round
+
+  // ── David Beckham ──────────────────────────────────────────────────────────
+  'becks':            'David Beckham',            // D round
+  'golden balls':     'David Beckham',            // D round
+
+  // ── Robert Lewandowski ─────────────────────────────────────────────────────
+  'lewy':             'Robert Lewandowski',       // R round
+  'lewi':             'Robert Lewandowski',       // R round
+
+  // ── Andriy Shevchenko ──────────────────────────────────────────────────────
+  'sheva':            'Andriy Shevchenko',        // A round
+
+  // ── Son Heung-min ──────────────────────────────────────────────────────────
+  'sonny':            'Son Heung-min',            // S round
+
+  // ── Wayne Rooney ───────────────────────────────────────────────────────────
+  'wazza':            'Wayne Rooney',             // W round
+
+  // ── Mohamed Salah ──────────────────────────────────────────────────────────
+  'mo salah':         'Mohamed Salah',            // M round
+  'mo':               'Mohamed Salah',            // M round
+  'the egyptian king':'Mohamed Salah',            // M round
+
+  // ── Steven Gerrard ─────────────────────────────────────────────────────────
+  'stevie g':         'Steven Gerrard',           // S round
+
+  // ── Filippo Inzaghi ────────────────────────────────────────────────────────
+  'pippo':            'Filippo Inzaghi',          // F round
+  'pippo inzaghi':    'Filippo Inzaghi',          // F round
+
+  // ── Frank Lampard ──────────────────────────────────────────────────────────
+  'lamps':            'Frank Lampard',            // F round
+  'super frank':      'Frank Lampard',            // F round
+
+  // ── Romelu Lukaku ──────────────────────────────────────────────────────────
+  'big rom':          'Romelu Lukaku',            // R round
+  'rom':              'Romelu Lukaku',            // R round
+
+  // ── Mario Balotelli ────────────────────────────────────────────────────────
+  'super mario':      'Mario Balotelli',          // M round
+
+  // ── Sergio Agüero ──────────────────────────────────────────────────────────
+  'kun':              'Sergio Agüero',            // S round
+  'kun aguero':       'Sergio Agüero',            // S round
+
+  // ── Bastian Schweinsteiger ─────────────────────────────────────────────────
+  'schweini':         'Bastian Schweinsteiger',   // B round
+  'basti':            'Bastian Schweinsteiger',   // B round
+
+  // ── Iker Casillas ──────────────────────────────────────────────────────────
+  'san iker':         'Iker Casillas',            // I round
+
+  // ── Dimitar Berbatov ───────────────────────────────────────────────────────
+  'berba':            'Dimitar Berbatov',         // D round
+
+  // ── Jay-Jay Okocha ─────────────────────────────────────────────────────────
+  'jay jay':          'Jay-Jay Okocha',           // J round
+
+  // ── Juan Román Riquelme ────────────────────────────────────────────────────
+  'jrr':              'Juan Román Riquelme',      // J round
+
+  // ── Eusébio ────────────────────────────────────────────────────────────────
+  'the black panther':'Eusébio',                  // E round
+  'black panther':    'Eusébio',                  // E round
+
+  // ── Erling Haaland ─────────────────────────────────────────────────────────
+  'the terminator':   'Erling Haaland',           // E round
+
+  // ── Khvicha Kvaratskhelia ──────────────────────────────────────────────────
+  'kvara':            'Khvicha Kvaratskhelia',    // K round
+  'kvaratskhelia':    'Khvicha Kvaratskhelia',    // K round
+
+  // ── Vinícius Júnior ────────────────────────────────────────────────────────
+  'vini jr':          'Vinícius Júnior',          // V round
+  'vini':             'Vinícius Júnior',          // V round
+
+  // ── Virgil van Dijk ────────────────────────────────────────────────────────
+  'vvd':              'Virgil van Dijk',          // V round
+
+  // ── Trent Alexander-Arnold ─────────────────────────────────────────────────
+  'taa':              'Trent Alexander-Arnold',   // T round
+
+  // ── Kevin De Bruyne ────────────────────────────────────────────────────────
+  'kdb':              'Kevin De Bruyne',          // K round
+
+  // ── Robin van Persie ───────────────────────────────────────────────────────
+  'rvp':              'Robin van Persie',         // R round
+
+  // ── Eric Cantona ───────────────────────────────────────────────────────────
+  'the king':         'Eric Cantona',             // E round
+  'king eric':        'Eric Cantona',             // E round
+
+  // ── Karim Benzema ──────────────────────────────────────────────────────────
+  'benz':             'Karim Benzema',            // K round
+  'kb9':              'Karim Benzema',            // K round
+
+  // ── Kylian Mbappé ──────────────────────────────────────────────────────────
+  'km10':             'Kylian Mbappé',            // K round
+  'donatello':        'Kylian Mbappé',            // K round
+
+  // ── Antoine Griezmann ──────────────────────────────────────────────────────
+  'grizou':           'Antoine Griezmann',        // A round
+  'grizz':            'Antoine Griezmann',        // A round
+
+  // ── Jude Bellingham ────────────────────────────────────────────────────────
+  'bells':            'Jude Bellingham',          // J round
+  'jude':             'Jude Bellingham',          // J round
+
+  // ── Luka Modrić ────────────────────────────────────────────────────────────
+  'modric':           'Luka Modrić',              // L round
+
+  // ── Andrés Iniesta ─────────────────────────────────────────────────────────
+  'iniesta':          'Andrés Iniesta',           // A round
+
+  // ── Xavi Hernández ─────────────────────────────────────────────────────────
+  'xavi':             'Xavi Hernández',           // X round
+
+  // ── Carlos Tevez ───────────────────────────────────────────────────────────
+  'carlitos':         'Carlos Tevez',             // C round
+  'tevez':            'Carlos Tevez',             // C round
+
+  // ── George Weah ────────────────────────────────────────────────────────────
+  'king george':      'George Weah',              // G round
+
+  // ── Abédi Pelé ─────────────────────────────────────────────────────────────
+  'abedi':            'Abédi Pelé',               // A round
+  'abedi pele':       'Abédi Pelé',               // A round
+
+  // ── Alessandro Del Piero ───────────────────────────────────────────────────
+  'pinturicchio':     'Alessandro Del Piero',     // A round
+  'del piero':        'Alessandro Del Piero',     // A round
+
+  // ── Gianluca Vialli ────────────────────────────────────────────────────────
+  'luca vialli':      'Gianluca Vialli',          // G round
+  'vialli':           'Gianluca Vialli',          // G round
+
+  // ── Gianfranco Zola ────────────────────────────────────────────────────────
+  'zola':             'Gianfranco Zola',          // G round
+  'magic box':        'Gianfranco Zola',          // G round
+
+  // ── Dennis Bergkamp ────────────────────────────────────────────────────────
+  'the non flying dutchman': 'Dennis Bergkamp',  // D round
+  'iceman':           'Dennis Bergkamp',          // D round
+
+  // ── Patrick Vieira ─────────────────────────────────────────────────────────
+  'vieira':           'Patrick Vieira',           // P round
+
+  // ── Didier Drogba ──────────────────────────────────────────────────────────
+  'drogba':           'Didier Drogba',            // D round
+  'the special one':  'Didier Drogba',            // D round (Chelsea era nickname)
+
+  // ── Eden Hazard ────────────────────────────────────────────────────────────
+  'hazard':           'Eden Hazard',              // E round
+
+  // ── Sadio Mané ─────────────────────────────────────────────────────────────
+  'mane':             'Sadio Mané',               // S round
+
+  // ── N'Golo Kanté ───────────────────────────────────────────────────────────
+  'kante':            "N'Golo Kanté",             // N round
+  'ngolo':            "N'Golo Kanté",             // N round
+
+  // ── Neymar ─────────────────────────────────────────────────────────────────
+  'ney':              'Neymar',                   // N round
+  'neymar jr':        'Neymar',                   // N round
+
+  // ── Gareth Bale ────────────────────────────────────────────────────────────
+  'bale':             'Gareth Bale',              // G round
+
+  // ── Yaya Touré ─────────────────────────────────────────────────────────────
+  'yaya':             'Yaya Touré',               // Y round
+  'toure':            'Yaya Touré',               // Y round
+
+  // ── Arjen Robben ───────────────────────────────────────────────────────────
+  'robben':           'Arjen Robben',             // A round
+  'the roller':       'Arjen Robben',             // A round
+
+  // ── Mesut Özil ─────────────────────────────────────────────────────────────
+  'ozil':             'Mesut Özil',               // M round
+
+  // ── Lamine Yamal ───────────────────────────────────────────────────────────
+  'yamal':            'Lamine Yamal',             // L round
+
+  // ── Pedri ──────────────────────────────────────────────────────────────────
+  'pedri gonzalez':   'Pedri',                    // P round
+
+  // ── Bukayo Saka ────────────────────────────────────────────────────────────
+  'saka':             'Bukayo Saka',              // B round
+
+  // ── Phil Foden ─────────────────────────────────────────────────────────────
+  'foden':            'Phil Foden',               // P round
+  'the stockport iniesta': 'Phil Foden',          // P round
+
+  // ── Marcus Rashford ────────────────────────────────────────────────────────
+  'rashford':         'Marcus Rashford',          // M round
+
+  // ── Cole Palmer ────────────────────────────────────────────────────────────
+  'cp10':             'Cole Palmer',              // C round
+
+  // ── Declan Rice ────────────────────────────────────────────────────────────
+  'dec':              'Declan Rice',              // D round
+  'the rice':         'Declan Rice',              // D round
+
+  // ── Rodri ──────────────────────────────────────────────────────────────────
+  'rodrigo hernandez': 'Rodri',                  // R round
+
+  // ── Jack Grealish ──────────────────────────────────────────────────────────
+  'grealish':         'Jack Grealish',            // J round
+
+  // ── Raheem Sterling ────────────────────────────────────────────────────────
+  'sterling':         'Raheem Sterling',          // R round
+  'raz':              'Raheem Sterling',          // R round
+
+  // ── Harry Kane ─────────────────────────────────────────────────────────────
+  'kane':             'Harry Kane',               // H round
+
+  // ── Heung-Min Son ─────────────────────────────────────────────────────────
+  'son':              'Son Heung-min',            // S round
+
+  // ── Gavi ───────────────────────────────────────────────────────────────────
+  'gavi paez':        'Gavi',                     // G round
+
+  // ── Ferran Torres ──────────────────────────────────────────────────────────
+  'ferran':           'Ferran Torres',            // F round
+
+  // ── Florian Wirtz ──────────────────────────────────────────────────────────
+  'wirtz':            'Florian Wirtz',            // F round
+
+  // ── Jamal Musiala ──────────────────────────────────────────────────────────
+  'musiala':          'Jamal Musiala',            // J round
+  'bambi':            'Jamal Musiala',            // J round
+
+  // ── Alejandro Garnacho ─────────────────────────────────────────────────────
+  'garnacho':         'Alejandro Garnacho',       // A round
+
+  // ── Kobbie Mainoo ──────────────────────────────────────────────────────────
+  'mainoo':           'Kobbie Mainoo',            // K round
+
+  // ── Michael Ballack ────────────────────────────────────────────────────────
+  'ballack':          'Michael Ballack',          // M round
+  'little giant':     'Michael Ballack',          // M round
+
+  // ── Lothar Matthäus ────────────────────────────────────────────────────────
+  'matthaus':         'Lothar Matthäus',          // L round
+
+  // ── Karl-Heinz Rummenigge ──────────────────────────────────────────────────
+  'rummenigge':       'Karl-Heinz Rummenigge',    // K round
+
+  // ── Sepp Maier ─────────────────────────────────────────────────────────────
+  'die katze':        'Sepp Maier',              // S round
+  'the cat':          'Sepp Maier',              // S round
+
+  // ── Ruud Gullit ────────────────────────────────────────────────────────────
+  'gullit':           'Ruud Gullit',              // R round
+
+  // ── Marco van Basten ───────────────────────────────────────────────────────
+  'van basten':       'Marco van Basten',         // M round
+
+  // ── Johan Cruyff ───────────────────────────────────────────────────────────
+  'cruyff':           'Johan Cruyff',             // J round
+  'cruijff':          'Johan Cruyff',             // J round
+  'el salvador':      'Johan Cruyff',             // J round
+
+  // ── Michael Laudrup ────────────────────────────────────────────────────────
+  'laudrup':          'Michael Laudrup',          // M round
+
+  // ── Peter Schmeichel ───────────────────────────────────────────────────────
+  'schmeichel':       'Peter Schmeichel',         // P round
+
+  // ── Rivaldo ────────────────────────────────────────────────────────────────
+  'rivaldo':          'Rivaldo',                  // R round
+
+  // ── Robinho ────────────────────────────────────────────────────────────────
+  'robinho':          'Robinho',                  // R round
+
+  // ── Adriano ────────────────────────────────────────────────────────────────
+  'the emperor':      'Adriano',                  // A round (Adriano "The Emperor")
+
+  // ── Arturo Vidal ───────────────────────────────────────────────────────────
+  'el guerrero':      'Arturo Vidal',             // A round
+  'king arturo':      'Arturo Vidal',             // A round
+
+  // ── Claudio Marchisio ──────────────────────────────────────────────────────
+  'il principino':    'Claudio Marchisio',        // C round
+
+  // ── Hakan Çalhanoğlu ───────────────────────────────────────────────────────
+  'calhanoglu':       'Hakan Çalhanoğlu',         // H round
+  'calha':            'Hakan Çalhanoğlu',         // H round
+
+  // ── Paulo Futre ────────────────────────────────────────────────────────────
+  'futre':            'Paulo Futre',              // P round
+
+  // ── Andriy Shevchenko (extra) ──────────────────────────────────────────────
+  'shevchenko':       'Andriy Shevchenko',        // A round
+
+  // ── Cafu ───────────────────────────────────────────────────────────────────
+  'the train':        'Cafu',                     // C round
+  'pendolino':        'Cafu',                     // C round
+
+  // ── Roberto Carlos ─────────────────────────────────────────────────────────
+  'roberto':          'Roberto Carlos',           // R round
+
+  // ── Clarence Seedorf ───────────────────────────────────────────────────────
+  'seedorf':          'Clarence Seedorf',         // C round
+
+  // ── Rivaldo ────────────────────────────────────────────────────────────────
+  // single name in db, handled by direct match.
+
+  // ── Falcao (standalone) ────────────────────────────────────────────────────
+  'el tigre falcao':  'Radamel Falcao',           // R round
+
+  // ── Xherdan Shaqiri ────────────────────────────────────────────────────────
+  'shaqiri':          'Xherdan Shaqiri',          // X round
+  'the rocket':       'Xherdan Shaqiri',          // X round
+
+  // ── Dani Alves ─────────────────────────────────────────────────────────────
+  'dani':             'Dani Alves',               // D round
+
+  // ── Cesc Fàbregas ──────────────────────────────────────────────────────────
+  'fabregas':         'Cesc Fàbregas',            // C round
+  'cesc':             'Cesc Fàbregas',            // C round
+
+  // ── Luis Figo ──────────────────────────────────────────────────────────────
+  'figo':             'Luís Figo',                // L round
+
+  // ── Ryan Giggs ─────────────────────────────────────────────────────────────
+  'giggs':            'Ryan Giggs',               // R round
+
+  // ── Paul Scholes ───────────────────────────────────────────────────────────
+  'scholesy':         'Paul Scholes',             // P round
+
+  // ── Roy Keane ──────────────────────────────────────────────────────────────
+  'keane':            'Roy Keane',                // R round
+
+  // ── Ole Gunnar Solskjaer ───────────────────────────────────────────────────
+  'baby faced assassin': 'Ole Gunnar Solskjaer', // O round
+  'ole':              'Ole Gunnar Solskjaer',     // O round
+
+  // ── Peter Beardsley ────────────────────────────────────────────────────────
+  'beardsley':        'Peter Beardsley',          // P round
+
+  // ── Alan Shearer ───────────────────────────────────────────────────────────
+  'shearer':          'Alan Shearer',             // A round
+
+  // ── Gary Lineker ───────────────────────────────────────────────────────────
+  'lineker':          'Gary Lineker',             // G round
+
+  // ── Glenn Hoddle ───────────────────────────────────────────────────────────
+  'hoddle':           'Glenn Hoddle',             // G round
+
+  // ── Gheorghe Hagi ──────────────────────────────────────────────────────────
+  'maradona of the carpathians': 'Gheorghe Hagi',// G round
+  'hagi':             'Gheorghe Hagi',            // G round
+
+  // ── Davor Šuker ────────────────────────────────────────────────────────────
+  'suker':            'Davor Šuker',              // D round
+
+  // ── Dragan Stojković ───────────────────────────────────────────────────────
+  'piksi':            'Dragan Stojković',         // D round
+
+  // ── Dejan Savićević ────────────────────────────────────────────────────────
+  'the genius':       'Dejan Savićević',          // D round
+
+  // ── Zvonimir Boban ─────────────────────────────────────────────────────────
+  'boban':            'Zvonimir Boban',           // Z round
+
+  // ── Luca Modrić (extra) ────────────────────────────────────────────────────
+  'the magician':     'Luka Modrić',             // L round
+
+  // ── Victor Osimhen ─────────────────────────────────────────────────────────
+  'osimhen':          'Victor Osimhen',           // V round
+
+  // ── Rafael Leão ────────────────────────────────────────────────────────────
+  'leao':             'Rafael Leão',              // R round
+
+  // ── Nicolò Barella ─────────────────────────────────────────────────────────
+  'barella':          'Nicolò Barella',           // N round
+
+  // ── Martin Ødegaard ────────────────────────────────────────────────────────
+  'odegaard':         'Martin Ødegaard',          // M round
+
+  // ── Federico Valverde ──────────────────────────────────────────────────────
+  'fede valverde':    'Federico Valverde',        // F round
+
+  // ── Frenkie de Jong ────────────────────────────────────────────────────────
+  'de jong':          'Frenkie de Jong',          // F round
+
+  // ── Joshua Kimmich ─────────────────────────────────────────────────────────
+  'kimmich':          'Joshua Kimmich',           // J round
+
+  // ── Dayot Upamecano ────────────────────────────────────────────────────────
+  'upa':              'Dayot Upamecano',          // D round
+
+  // ── Aurélien Tchouaméni ────────────────────────────────────────────────────
+  'tchouameni':       'Aurélien Tchouaméni',      // A round
+
+  // ── Khephren Thuram ────────────────────────────────────────────────────────
+  'thuram':           'Khephren Thuram',          // K round
+
+  // ── Bernardo Silva ─────────────────────────────────────────────────────────
+  'bernardo':         'Bernardo Silva',           // B round
+
+  // ── Bruno Fernandes ────────────────────────────────────────────────────────
+  'bruno':            'Bruno Fernandes',          // B round
+
+  // ── Rúben Dias ─────────────────────────────────────────────────────────────
+  'ruben dias':       'Rúben Dias',               // R round
+
+  // ── João Cancelo ───────────────────────────────────────────────────────────
+  'cancelo':          'João Cancelo',             // J round
+
+  // ── João Félix ─────────────────────────────────────────────────────────────
+  'felix':            'João Félix',               // J round
+
+  // ── Dani Olmo ──────────────────────────────────────────────────────────────
+  'olmo':             'Dani Olmo',                // D round
+
+  // ── Nico Williams ──────────────────────────────────────────────────────────
+  'nico':             'Nico Williams',            // N round
+
+  // ── Vítor Baía ─────────────────────────────────────────────────────────────
+  'baia':             'Vítor Baía',               // V round
+
+  // ── George Best ────────────────────────────────────────────────────────────
+  'el beatle':        'George Best',              // G round
+  'fifth beatle':     'George Best',              // G round
+
+  // ── Denis Law ──────────────────────────────────────────────────────────────
+  'the king':         'Eric Cantona',             // kept for Cantona, Denis Law → 'the lawman'
+  'the lawman':       'Denis Law',                // D round
+
+  // ── Gary Neville ───────────────────────────────────────────────────────────
+  'neville':          'Gary Neville',             // G round
+
+  // ── Javier Zanetti ─────────────────────────────────────────────────────────
+  'zanetti':          'Javier Zanetti',           // J round
+
+  // ── Samuel Eto'o (Cameroonian Tiger) ────────────────────────────────────────
+  'cameroonian tiger':"Samuel Eto'o",             // S round
+
+  // ── Edin Džeko ─────────────────────────────────────────────────────────────
+  'dzeko':            'Edin Džeko',               // E round
+  'the bosnian diamond': 'Edin Džeko',            // E round
+
+  // ── Mauro Icardi ───────────────────────────────────────────────────────────
+  'icardi':           'Mauro Icardi',             // M round
+
+  // ── Ciro Immobile ──────────────────────────────────────────────────────────
+  'immobile':         'Ciro Immobile',            // C round
+
+  // ── Lorenzo Pellegrini ─────────────────────────────────────────────────────
+  'pellegrini':       'Lorenzo Pellegrini',       // L round
+
+  // ── Victor Gyökeres ────────────────────────────────────────────────────────
+  'gyokeres':         'Viktor Gyökeres',          // V round
+
+  // ── Santiago Giménez ───────────────────────────────────────────────────────
+  'santi':            'Santi Cazorla',            // S round (Cazorla)
+  'chaquito':         'Santiago Giménez',         // S round
+
+  // ── Loïs Openda ────────────────────────────────────────────────────────────
+  'openda':           'Loïs Openda',              // L round
+
+  // ── Jonathan David ─────────────────────────────────────────────────────────
+  'jojo david':       'Jonathan David',           // J round
+
+  // ── Rayan Cherki ───────────────────────────────────────────────────────────
+  'cherki':           'Rayan Cherki',             // R round
+
+  // ── Alexandre Lacazette ────────────────────────────────────────────────────
+  'lacazette':        'Alexandre Lacazette',      // A round
+  'the general':      'Alexandre Lacazette',      // A round
+
+  // ── Raphaël Guerreiro ──────────────────────────────────────────────────────
+  'guerreiro':        'Raphaël Guerreiro',        // R round
+
+  // ── Alphonso Davies ────────────────────────────────────────────────────────
+  'phonzie':          'Alphonso Davies',          // A round
+
+  // ── Dani Carvajal ──────────────────────────────────────────────────────────
+  'carvajal':         'Dani Carvajal',            // D round
 };
 
 const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
