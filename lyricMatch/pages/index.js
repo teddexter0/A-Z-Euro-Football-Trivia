@@ -71,6 +71,7 @@ export default function Home() {
               user ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   {user.photoURL && (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={user.photoURL} alt="" style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--accent-green)' }} />
                   )}
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{user.displayName}</span>
