@@ -84,6 +84,8 @@ app.prepare().then(() => {
             gameMode: 'modern',
             winner: null,
             timerInterval: null,
+            isPaused: false,
+            pausedBy: null,
           });
           console.log('Created room:', roomId);
         }
@@ -126,6 +128,8 @@ app.prepare().then(() => {
         room.currentLetterIndex = 0;
         room.usedPlayers = [];
         room.winner = null;
+        room.isPaused = false;
+        room.pausedBy = null;
         room.scores = Object.fromEntries(Object.keys(room.players).map(p => [p, 0]));
 
         io.to(roomId).emit('game-started', { currentLetter: room.currentLetter, timer: room.timer });
@@ -167,6 +171,40 @@ app.prepare().then(() => {
       }
     });
 
+    socket.on('pause-game', ({ roomId }) => {
+      try {
+        const room = gameRooms.get(roomId);
+        if (!room || !room.isActive || room.isPaused) return;
+
+        room.isPaused = true;
+        room.pausedBy = socket.playerName || 'A player';
+        if (room.timerInterval) { clearInterval(room.timerInterval); room.timerInterval = null; }
+
+        io.to(roomId).emit('game-paused', { pausedBy: room.pausedBy, timer: room.timer });
+        io.to(roomId).emit('game-state-update', roomSnapshot(room));
+      } catch (err) {
+        console.error('pause-game error:', err);
+      }
+    });
+
+    socket.on('resume-game', ({ roomId }) => {
+      try {
+        const room = gameRooms.get(roomId);
+        if (!room || !room.isPaused) return;
+
+        room.isPaused = false;
+        room.pausedBy = null;
+
+        io.to(roomId).emit('game-resumed', { timer: room.timer });
+        io.to(roomId).emit('game-state-update', roomSnapshot(room));
+
+        // Restart the timer from the remaining time
+        startTimer(roomId);
+      } catch (err) {
+        console.error('resume-game error:', err);
+      }
+    });
+
     socket.on('disconnect', () => {
       const { currentRoom, playerName } = socket;
       if (!currentRoom || !playerName) return;
@@ -201,6 +239,8 @@ app.prepare().then(() => {
       gameStarted: room.gameStarted,
       gameMode: room.gameMode,
       winner: room.winner,
+      isPaused: room.isPaused,
+      pausedBy: room.pausedBy,
     };
   }
 
