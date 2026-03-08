@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import Fuse from 'fuse.js';
+import { wordFuzzyMatch } from '../lib/fuzzyMatch';
 
 const LETTER_SCORES = {
   A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4, I: 1, J: 8, K: 5, L: 1, M: 3,
@@ -635,6 +636,8 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [pausedBy, setPausedBy] = useState(null);
   
   const fuseRef = useRef(null);
   const socketRef = useRef(null);
@@ -780,6 +783,18 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           setTimeout(() => setMessage(''), 3000);
         });
 
+        newSocket.on('game-paused', (data) => {
+          setIsPaused(true);
+          setPausedBy(data.pausedBy);
+          setGameState(prev => ({ ...prev, timer: data.timer }));
+        });
+
+        newSocket.on('game-resumed', (data) => {
+          setIsPaused(false);
+          setPausedBy(null);
+          setGameState(prev => ({ ...prev, timer: data.timer }));
+        });
+
       } catch (error) {
         console.error('❌ Socket init failed:', error);
         setConnectionStatus('error');
@@ -827,7 +842,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         const normalizedForFuse = data.map(name => normalizePlayerName(name));
 
         fuseRef.current = new Fuse(normalizedForFuse, {
-          threshold: 0.6,
+          threshold: 0.55,
           distance: 200,
           includeScore: true,
           minMatchCharLength: 3,
@@ -855,6 +870,16 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     console.log('🚀 Starting game...');
     socket.emit('start-game', { roomId });
     setMessage('🎮 Starting...');
+  };
+
+  const handlePauseGame = () => {
+    if (!socket || !gameState.isActive || isPaused) return;
+    socket.emit('pause-game', { roomId });
+  };
+
+  const handleResumeGame = () => {
+    if (!socket || !isPaused) return;
+    socket.emit('resume-game', { roomId });
   };
 
   const handleSubmitAnswer = () => {
@@ -950,14 +975,12 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           const matchedPlayer = playerDatabaseRef.current[result.refIndex];
           const normalizedMatched = result.item; // already normalized
 
-          if (result.score < 0.6) {
-            // Word-boundary guard: at least one word in the matched name must
-            // START WITH the input. Prevents "dinho" (D round) from matching
-            // "Ronaldinho" whose only word "ronaldinho" starts with "r".
-            const hasWordMatch = normalizedMatched
-              .split(' ')
-              .some(word => word.startsWith(normalizedInput));
-            if (!hasWordMatch) continue;
+          if (result.score < 0.55) {
+            // Word-fuzzy guard: input must fuzzy-match at least one word in the
+            // matched name (prefix OR Levenshtein within tolerance). This allows
+            // typos like "Lewandowsky" → "Lewandowski" while still blocking
+            // unrelated matches like "dinho" → "Ronaldinho" in the D round.
+            if (!wordFuzzyMatch(normalizedMatched, normalizedInput)) continue;
 
             const conflictsWithUsed = gameState.usedPlayers?.some(usedPlayer => {
               const normalizedUsed = normalizePlayerName(usedPlayer);
@@ -1173,21 +1196,34 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
               <div style={{
                 width: '80px', height: '80px', borderRadius: '50%',
-                background: '#ef4444', color: 'white',
+                background: isPaused ? '#f59e0b' : '#ef4444', color: 'white',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '1.5rem', fontWeight: 'bold'
               }}>
-                {gameState.timer}s
+                {isPaused ? '⏸' : `${gameState.timer}s`}
               </div>
               <div style={{ flex: 1, maxWidth: '300px', height: '10px', background: '#f1f5f9', borderRadius: '5px' }}>
                 <div style={{
                   height: '100%',
-                  background: '#10b981',
+                  background: isPaused ? '#f59e0b' : '#10b981',
                   width: `${(gameState.timer / 30) * 100}%`,
                   borderRadius: '5px',
-                  transition: 'width 1s linear'
+                  transition: isPaused ? 'none' : 'width 1s linear'
                 }}></div>
               </div>
+              <button
+                onClick={isPaused ? handleResumeGame : handlePauseGame}
+                title={isPaused ? 'Resume game' : 'Pause game'}
+                style={{
+                  padding: '8px 14px',
+                  background: isPaused ? '#10b981' : '#f59e0b',
+                  color: 'white', border: 'none', borderRadius: '8px',
+                  cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold',
+                  flexShrink: 0,
+                }}
+              >
+                {isPaused ? '▶ Resume' : '⏸'}
+              </button>
             </div>
           )}
         </div>
@@ -1225,6 +1261,31 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
             </div>
           )}
           
+          {gameState.isActive && isPaused && (
+            <div style={{
+              padding: '20px', borderRadius: '12px', marginBottom: '15px',
+              background: '#fef3c7', border: '2px solid #f59e0b',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#92400e' }}>
+                ⏸ Game Paused
+              </div>
+              <div style={{ color: '#78350f', marginTop: '4px' }}>
+                Paused by <strong>{pausedBy}</strong>
+              </div>
+              <button
+                onClick={handleResumeGame}
+                style={{
+                  marginTop: '12px', padding: '10px 24px',
+                  background: '#10b981', color: 'white', border: 'none',
+                  borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold'
+                }}
+              >
+                ▶ Resume
+              </button>
+            </div>
+          )}
+
           {gameState.isActive && (
             <div>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
@@ -1232,26 +1293,26 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
                   type="text"
                   value={playerInput}
                   onChange={(e) => setPlayerInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSubmitAnswer()}
+                  onKeyPress={(e) => e.key === 'Enter' && !isPaused && handleSubmitAnswer()}
                   placeholder={`Enter player starting with ${gameState.currentLetter}...`}
-                  disabled={submitted}
+                  disabled={submitted || isPaused}
                   style={{
                     flex: 1, padding: '15px', border: '2px solid #e2e8f0',
                     borderRadius: '10px', fontSize: '1.1rem',
-                    background: submitted ? '#f0fdf4' : 'white'
+                    background: submitted ? '#f0fdf4' : isPaused ? '#fef9c3' : 'white'
                   }}
                 />
-                <button 
+                <button
                   onClick={handleSubmitAnswer}
-                  disabled={submitted || !playerInput.trim()}
+                  disabled={submitted || !playerInput.trim() || isPaused}
                   style={{
                     padding: '15px 25px',
-                    background: submitted ? '#10b981' : (!playerInput.trim() ? '#94a3b8' : '#667eea'),
+                    background: submitted ? '#10b981' : (isPaused || !playerInput.trim() ? '#94a3b8' : '#667eea'),
                     color: 'white', border: 'none', borderRadius: '10px',
-                    cursor: 'pointer', minWidth: '100px'
+                    cursor: submitted || isPaused ? 'not-allowed' : 'pointer', minWidth: '100px'
                   }}
                 >
-                  {submitted ? '✅ Sent' : 'Submit'}
+                  {submitted ? '✅ Sent' : isPaused ? '⏸' : 'Submit'}
                 </button>
               </div>
               <div style={{ textAlign: 'center', color: '#64748b' }}>
