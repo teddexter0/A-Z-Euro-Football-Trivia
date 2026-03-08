@@ -6,6 +6,51 @@ import { onAuth, submitGameScore } from '../lib/firebase';
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const ROUND_TIME = 60;
 
+// ── Toast system ────────────────────────────────────────────────────────────
+function useToasts() {
+  const [toasts, setToasts] = useState([]);
+  function addToast(msg, type = 'info') {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
+  }
+  return { toasts, addToast };
+}
+
+function ToastStack({ toasts }) {
+  if (!toasts.length) return null;
+  return (
+    <div style={{
+      position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+      display: 'flex', flexDirection: 'column', gap: '0.5rem',
+      alignItems: 'center', zIndex: 200, pointerEvents: 'none',
+    }}>
+      {toasts.map((t) => (
+        <div key={t.id} style={{
+          background: t.type === 'leave' ? 'rgba(239,68,68,0.15)' : 'rgba(29,185,84,0.13)',
+          border: `1px solid ${t.type === 'leave' ? 'rgba(239,68,68,0.35)' : 'rgba(29,185,84,0.3)'}`,
+          color: '#fff',
+          borderRadius: 999,
+          padding: '0.5rem 1.25rem',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          backdropFilter: 'blur(8px)',
+          animation: 'slideUpFade 0.3s ease',
+          whiteSpace: 'nowrap',
+        }}>
+          {t.msg}
+        </div>
+      ))}
+      <style>{`
+        @keyframes slideUpFade {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function ConfidenceMeter({ value }) {
   const pct = Math.max(0, Math.min(100, value));
   const cls = pct >= 70 ? 'confidence-high' : pct >= 40 ? 'confidence-mid' : 'confidence-low';
@@ -150,6 +195,12 @@ export default function GameBoard({ roomId, playerName }) {
   const [pauseRequestedBy, setPauseRequestedBy] = useState(null);
   const [pauseVotes, setPauseVotes] = useState({ votes: 0, needed: 0 });
 
+  // Toast notifications
+  const { toasts, addToast } = useToasts();
+
+  // Leave-room confirmation dialog
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
   // Auth
   useEffect(() => {
     const unsub = onAuth(setUser);
@@ -279,6 +330,15 @@ export default function GameBoard({ roomId, playerName }) {
 
     socket.on('player-left', ({ playerName: pn }) => {
       setPlayers((prev) => prev.filter((p) => p !== pn));
+      if (pn !== playerName) {
+        addToast(`🚪 ${pn} left the room`, 'leave');
+      }
+    });
+
+    socket.on('player-joined', ({ playerName: pn }) => {
+      if (pn !== playerName) {
+        addToast(`👋 ${pn} joined the room`);
+      }
     });
 
     return () => socket.disconnect();
@@ -306,6 +366,12 @@ export default function GameBoard({ roomId, playerName }) {
   function agreeToResume() {
     setPauseRequestedBy(null);
     socketRef.current?.emit('request-pause', { roomId }); // cast vote
+  }
+
+  function leaveRoom() {
+    socketRef.current?.emit('leave-room', { roomId, playerName });
+    socketRef.current?.disconnect();
+    router.push('/');
   }
 
   const currentLetter = ALPHABET[currentLetterIndex];
@@ -361,6 +427,20 @@ export default function GameBoard({ roomId, playerName }) {
   if (!gameStarted) {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <ToastStack toasts={toasts} />
+        {showLeaveConfirm && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 150, backdropFilter: 'blur(4px)', padding: '1.5rem' }}>
+            <div className="glass-card fade-in-up" style={{ maxWidth: 340, width: '100%', padding: '2rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🚪</div>
+              <h2 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>Leave the room?</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>You'll go back to the home screen.</p>
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setShowLeaveConfirm(false)}>Stay</button>
+                <button onClick={leaveRoom} style={{ flex: 1, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 10, padding: '0.6rem', color: '#f87171', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>Leave</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="glass-card fade-in-up" style={{ maxWidth: 480, width: '100%', padding: '2.5rem', textAlign: 'center' }}>
           <div className="waveform" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
             <span /><span /><span /><span /><span />
@@ -391,9 +471,17 @@ export default function GameBoard({ roomId, playerName }) {
             </div>
           </div>
 
-          <button className="btn-primary" style={{ width: '100%' }} onClick={startGame}>
-            Start game →
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button className="btn-primary" style={{ flex: 1 }} onClick={startGame}>
+              Start game →
+            </button>
+            <button
+              onClick={() => setShowLeaveConfirm(true)}
+              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, padding: '0.6rem 1rem', color: '#f87171', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+            >
+              🚪 Leave
+            </button>
+          </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: '0.75rem' }}>
             Game starts for everyone when you click start
           </p>
@@ -405,6 +493,48 @@ export default function GameBoard({ roomId, playerName }) {
   // ── Main game ─────────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '1.5rem', position: 'relative' }}>
+
+      {/* ── Toast notifications ── */}
+      <ToastStack toasts={toasts} />
+
+      {/* ── Leave-room confirmation dialog ── */}
+      {showLeaveConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 150, backdropFilter: 'blur(4px)', padding: '1.5rem',
+        }}>
+          <div className="glass-card fade-in-up" style={{ maxWidth: 340, width: '100%', padding: '2rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🚪</div>
+            <h2 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>Leave the room?</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+              {gameStarted && !gameOver
+                ? "You'll forfeit your current game score and your spot in the room."
+                : "You'll go back to the home screen."}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                className="btn-secondary"
+                style={{ flex: 1 }}
+                onClick={() => setShowLeaveConfirm(false)}
+              >
+                Stay
+              </button>
+              <button
+                onClick={leaveRoom}
+                style={{
+                  flex: 1, background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  borderRadius: 10, padding: '0.6rem',
+                  color: '#f87171', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+                }}
+              >
+                Leave
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Pause overlay ── */}
       {isPaused && (
@@ -562,6 +692,18 @@ export default function GameBoard({ roomId, playerName }) {
                 ⏸ Pause
               </button>
             )}
+            <button
+              onClick={() => setShowLeaveConfirm(true)}
+              style={{
+                background: 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                borderRadius: 8, padding: '0.35rem 0.8rem',
+                fontSize: '0.8rem', color: '#f87171',
+                cursor: 'pointer',
+              }}
+            >
+              🚪 Leave
+            </button>
           </div>
         </div>
 

@@ -114,6 +114,8 @@ app.prepare().then(async () => {
       socket.data.playerName = playerName;
 
       io.to(roomId).emit('room-update', buildRoomState(room));
+      // Notify everyone else that this player joined
+      socket.to(roomId).emit('player-joined', { playerName });
       console.log(`[socket] ${playerName} joined room ${roomId}`);
     });
 
@@ -225,6 +227,22 @@ app.prepare().then(async () => {
           endRound(io, room, roomId, true);
         }
       }, 1000);
+    });
+
+    // ── Explicit leave ────────────────────────────────────────────────────────
+    socket.on('leave-room', ({ roomId, playerName: pn }) => {
+      const room = rooms[roomId];
+      if (room) {
+        delete room.players[pn];
+        room.pauseVotes.delete(pn);
+        io.to(roomId).emit('player-left', { playerName: pn });
+        io.to(roomId).emit('room-update', buildRoomState(room));
+        if (Object.keys(room.players).length === 0) {
+          clearInterval(room.timerInterval);
+          delete rooms[roomId];
+        }
+      }
+      socket.leave(roomId);
     });
 
     // ── Disconnect ────────────────────────────────────────────────────────────
