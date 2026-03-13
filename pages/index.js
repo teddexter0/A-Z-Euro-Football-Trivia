@@ -107,8 +107,8 @@ export default function Home() {
               <div className="mode-badge icons-badge">CLASSIC</div>
               <div className="mode-icon">🏆</div>
               <h3>Icons Mode</h3>
-              <p className="mode-era">Legends · 1990 – 2014</p>
-              <div className="mode-examples">Messi · Ronaldinho · Henry · Zidane · Ronaldo R9</div>
+              <p className="mode-era">Retired Legends · pre-2015</p>
+              <div className="mode-examples">Ronaldinho · Henry · Zidane · Ronaldo R9 · Pirlo</div>
               {gameMode === 'icons' && <div className="mode-selected-indicator">✓ Selected</div>}
             </div>
 
