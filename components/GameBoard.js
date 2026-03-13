@@ -1198,6 +1198,32 @@ const GB_STYLES = `
   }
 `;
 
+// ── Mode display helpers ───────────────────────────────────────────────────────
+function getModeLabel(gameMode) {
+  const [type, sub, era] = (gameMode || 'football-modern').split('-');
+  const labels = {
+    football: { icons: '🏆 Icons', modern: '⚡ Modern', default: '⚽ Football' },
+    nba:      { legends: '🏆 Legends', modern: '⚡ Modern', default: '🏀 NBA' },
+    wwe:      { all: '🌎 All Eras', golden: '👑 Golden', attitude: '🔥 Attitude', ruthless: '⚡ Ruthless', pg: '🛡️ PG Era', modern: '🚀 Modern', default: '🤼 WWE' },
+    music:    { default: '🎵 Music' },
+    f1:       { legends: '🏆 Legends', modern: '⚡ Modern', default: '🏎️ F1' },
+    movies:   { classic: '🎞️ Classic', modern: '⚡ Modern', default: '🎬 Movies' },
+  };
+  const typeLabels = labels[type] || labels.football;
+  if (type === 'music') {
+    const genre = sub ? sub.charAt(0).toUpperCase() + sub.slice(1) : 'All';
+    const eraStr = era ? (era === 'classic' ? '🕰️ Classic' : '⚡ Modern') : '';
+    return `🎵 ${genre}${eraStr ? ' · ' + eraStr : ''}`;
+  }
+  return typeLabels[sub] || typeLabels.default || gameMode;
+}
+
+function getEntityLabel(gameMode) {
+  const type = (gameMode || '').split('-')[0];
+  const map = { football: 'Player', nba: 'Player', wwe: 'Superstar', music: 'Artist', f1: 'Driver', movies: 'Actor' };
+  return map[type] || 'Name';
+}
+
 const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
@@ -1407,8 +1433,9 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         setIsLoading(true);
         console.log(`📊 Loading ${gameMode} players...`);
         
-        const mode = gameMode === 'icons' ? 'icons' : 'modern';
-        const apiUrl = `/api/players/${mode}`;
+        // Pass the full compound mode string (e.g. "football-modern", "nba-legends", "music-hiphop-modern")
+        // Backwards-compat: bare 'icons'/'modern'/'legacy' still work via the API route
+        const apiUrl = `/api/players/${gameMode}`;
         
         console.log('🔗 Fetching from:', apiUrl);
         const response = await fetch(apiUrl);
@@ -1634,7 +1661,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           <div className="gb-spinner" />
           <div className="gb-spinner-text">
             <span className="gb-spinner-title">Loading Game…</span>
-            <span className="gb-spinner-sub">Fetching {gameMode === 'icons' ? '🏆 Icons' : '⚡ Modern'} players</span>
+            <span className="gb-spinner-sub">Fetching {getModeLabel(gameMode)} names…</span>
           </div>
         </div>
         <style jsx>{GB_STYLES}</style>
@@ -1725,10 +1752,10 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         <header className="gb-header">
           <div className="gb-header-left">
             <span className="gb-logo">A–Z</span>
-            <span className="gb-logo-sub">Football</span>
+            <span className="gb-logo-sub">{getModeLabel(gameMode)}</span>
           </div>
           <div className="gb-header-chips">
-            <span className="gb-chip">{gameMode === 'icons' ? '🏆 Icons' : '⚡ Modern'}</span>
+            <span className="gb-chip">{getModeLabel(gameMode)}</span>
             <span className="gb-chip gb-chip--room">🏠 {roomId}</span>
             <span className={`gb-chip gb-chip--status ${connectionStatus === 'connected' ? 'gb-chip--ok' : 'gb-chip--warn'}`}>
               {connectionStatus === 'connected' ? '● Live' : '◌ …'}
@@ -1839,7 +1866,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
                 value={playerInput}
                 onChange={e => setPlayerInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !isPaused && handleSubmitAnswer()}
-                placeholder={`Player starting with ${gameState.currentLetter}…`}
+                placeholder={`${getEntityLabel(gameMode)} starting with ${gameState.currentLetter}…`}
                 disabled={submitted || isPaused}
                 autoComplete="off"
                 autoFocus
@@ -1916,7 +1943,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         {/* ── Used Players ── */}
         {gameState.usedPlayers && gameState.usedPlayers.length > 0 && (
           <section className="gb-section">
-            <h3 className="gb-section-title">⚽ Named Players <span className="gb-count">{gameState.usedPlayers.length}</span></h3>
+            <h3 className="gb-section-title">✅ Named <span className="gb-count">{gameState.usedPlayers.length}</span></h3>
             <div className="gb-tags">
               {gameState.usedPlayers.slice(-15).map((p, i) => (
                 <span className="gb-tag" key={i}>{p}</span>

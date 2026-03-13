@@ -1,32 +1,95 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
+// ── Game type configs ─────────────────────────────────────────────────────────
+const GAME_TYPES = [
+  { id: 'football', label: '⚽ Football',  emoji: '⚽' },
+  { id: 'nba',      label: '🏀 NBA',       emoji: '🏀' },
+  { id: 'wwe',      label: '🤼 WWE',       emoji: '🤼' },
+  { id: 'music',    label: '🎵 Music',     emoji: '🎵' },
+  { id: 'f1',       label: '🏎️ F1',        emoji: '🏎️' },
+  { id: 'movies',   label: '🎬 Movies',    emoji: '🎬' },
+];
+
+const SUB_MODES = {
+  football: [
+    { id: 'icons',  label: '🏆 Icons',  desc: 'Retired Legends · pre-2015', examples: 'Ronaldinho · Henry · Zidane · R9 · Pirlo' },
+    { id: 'modern', label: '⚡ Modern', desc: 'Stars · 2015 – Present',      examples: 'Mbappé · Haaland · Bellingham · Vini Jr' },
+  ],
+  nba: [
+    { id: 'legends', label: '🏆 Legends', desc: 'All-Time Greats · pre-2015', examples: 'Jordan · Kobe · Shaq · Magic · Bird' },
+    { id: 'modern',  label: '⚡ Modern',  desc: 'Stars · 2015 – Present',     examples: 'LeBron · Curry · Giannis · Durant · Luka' },
+  ],
+  wwe: [
+    { id: 'all',      label: '🌎 All Eras',    desc: 'Every era combined',             examples: 'Hogan · Rock · Austin · Cena · Reigns' },
+    { id: 'golden',   label: '👑 Golden Era',   desc: '1980s — Hulkamania & beyond',    examples: 'Hogan · Macho Man · Andre the Giant' },
+    { id: 'attitude', label: '🔥 Attitude Era', desc: '1990s — Attitude Revolution',   examples: 'Stone Cold · The Rock · Mankind' },
+    { id: 'ruthless', label: '⚡ Ruthless Agg', desc: '2000s — Ruthless Aggression',   examples: 'Cena · Batista · Edge · Randy Orton' },
+    { id: 'pg',       label: '🛡️ PG Era',       desc: '2008–2014 — PG Era',            examples: 'Punk · Bryan · Shield · Rhodes' },
+    { id: 'modern',   label: '🚀 Modern',        desc: '2015–present — New Era',        examples: 'Reigns · Rollins · Becky Lynch · Sami' },
+  ],
+  music: [
+    { id: 'hiphop',    label: '🎤 Hip-Hop',      desc: 'Classic & modern rap',        examples: 'Biggie · Jay-Z · Kendrick · Drake' },
+    { id: 'pop',       label: '🌟 Pop',           desc: 'Classic & modern pop',        examples: 'Michael Jackson · Madonna · Taylor' },
+    { id: 'rock',      label: '🎸 Rock',          desc: 'Classic & modern rock',       examples: 'Freddie Mercury · Bowie · Foo Fighters' },
+    { id: 'rnb',       label: '🎶 R&B/Soul',      desc: 'R&B, soul, neo-soul',         examples: 'Beyoncé · Marvin Gaye · Usher · SZA' },
+    { id: 'edm',       label: '🎛️ EDM',           desc: 'Electronic & dance music',    examples: 'Daft Punk · Tiësto · Martin Garrix' },
+    { id: 'latin',     label: '💃 Latin',         desc: 'Latin pop & reggaeton',       examples: 'Bad Bunny · J Balvin · Shakira' },
+    { id: 'country',   label: '🤠 Country',       desc: 'Country & americana',         examples: 'Johnny Cash · Dolly · Taylor Swift' },
+    { id: 'kpop',      label: '✨ K-Pop',          desc: 'Korean pop artists & groups', examples: 'BTS · Blackpink · EXO · Stray Kids' },
+    { id: 'afrobeats', label: '🥁 Afrobeats',     desc: 'Afrobeats & afropop',         examples: 'Burna Boy · Wizkid · Davido · Tyla' },
+  ],
+  f1: [
+    { id: 'legends', label: '🏆 Legends', desc: 'All-Time Champions · pre-2015', examples: 'Senna · Schumacher · Prost · Lauda' },
+    { id: 'modern',  label: '⚡ Modern',  desc: 'Current Grid · 2015 – Present', examples: 'Hamilton · Verstappen · Leclerc · Norris' },
+  ],
+  movies: [
+    { id: 'classic', label: '🎞️ Classic', desc: 'Golden Age · pre-1990',         examples: 'Brando · Hepburn · Bogart · Monroe' },
+    { id: 'modern',  label: '⚡ Modern',  desc: 'Contemporary Stars · 1990–Now', examples: 'DiCaprio · Jolie · Hanks · Lawrence' },
+  ],
+};
+
+// For music — era sub-selector
+const MUSIC_ERAS = [
+  { id: 'classic', label: '🕰️ Classic' },
+  { id: 'modern',  label: '⚡ Modern'  },
+];
+
 export default function Home() {
   const [playerName, setPlayerName] = useState('');
-  const [roomId, setRoomId] = useState('');
-  const [gameMode, setGameMode] = useState('modern');
+  const [roomId, setRoomId]         = useState('');
+  const [gameType, setGameType]     = useState('football');
+  const [subMode, setSubMode]       = useState('modern');
+  const [musicEra, setMusicEra]     = useState('modern');
   const [isCreating, setIsCreating] = useState(false);
-  const [isJoining, setIsJoining] = useState(false);
+  const [isJoining, setIsJoining]   = useState(false);
   const router = useRouter();
 
-  const generateRoomId = () => {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  const fullMode = useMemo(() => {
+    if (gameType === 'music') return `music-${subMode}-${musicEra}`;
+    return `${gameType}-${subMode}`;
+  }, [gameType, subMode, musicEra]);
+
+  const handleTypeChange = (type) => {
+    setGameType(type);
+    const defaults = { football: 'modern', nba: 'modern', wwe: 'all', music: 'hiphop', f1: 'modern', movies: 'modern' };
+    setSubMode(defaults[type] || 'modern');
+    setMusicEra('modern');
   };
 
+  const generateRoomId = () => Math.random().toString(36).substring(2, 8).toUpperCase();
+
   const handleCreateRoom = async () => {
-    if (!playerName.trim()) {
-      alert('Please enter your name');
-      return;
-    }
+    if (!playerName.trim()) { alert('Please enter your name'); return; }
     setIsCreating(true);
     try {
       const newRoomId = generateRoomId();
       sessionStorage.setItem('playerName', playerName.trim());
-      sessionStorage.setItem('gameMode', gameMode);
-      router.push(`/game/${newRoomId}?mode=${gameMode}&player=${encodeURIComponent(playerName.trim())}`);
-    } catch (error) {
-      console.error('Failed to create room:', error);
+      sessionStorage.setItem('gameMode', fullMode);
+      router.push(`/game/${newRoomId}?mode=${fullMode}&player=${encodeURIComponent(playerName.trim())}`);
+    } catch (err) {
+      console.error('Failed to create room:', err);
       alert('Failed to create room. Please try again.');
     } finally {
       setIsCreating(false);
@@ -34,31 +97,27 @@ export default function Home() {
   };
 
   const handleJoinRoom = async () => {
-    if (!playerName.trim()) {
-      alert('Please enter your name');
-      return;
-    }
-    if (!roomId.trim()) {
-      alert('Please enter a room ID');
-      return;
-    }
+    if (!playerName.trim()) { alert('Please enter your name'); return; }
+    if (!roomId.trim()) { alert('Please enter a room ID'); return; }
     setIsJoining(true);
     try {
       sessionStorage.setItem('playerName', playerName.trim());
       router.push(`/game/${roomId.toUpperCase()}?player=${encodeURIComponent(playerName.trim())}`);
-    } catch (error) {
-      console.error('Failed to join room:', error);
+    } catch (err) {
+      console.error('Failed to join room:', err);
       alert('Failed to join room. Please try again.');
     } finally {
       setIsJoining(false);
     }
   };
 
+  const currentSubModes = SUB_MODES[gameType] || [];
+
   return (
     <>
       <Head>
-        <title>A-Z Football Trivia — Test Your Knowledge</title>
-        <meta name="description" content="Real-time multiplayer A-Z football player trivia. Name legends from A to Z, beat the clock, crush your mates." />
+        <title>A-Z Trivia Challenge — Football · NBA · WWE · Music · F1 · Movies</title>
+        <meta name="description" content="Real-time multiplayer A-Z trivia. Name legends from A to Z, beat the clock, crush your mates. Football, NBA, WWE, Music, F1, Movies." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -75,64 +134,90 @@ export default function Home() {
 
         {/* Hero */}
         <header className="hero-section">
-          <div className="hero-badge">⚽ EURO FOOTBALL TRIVIA</div>
+          <div className="hero-badge">🏆 A-Z TRIVIA CHALLENGE</div>
           <h1 className="title">
             <span className="title-az">A–Z</span>
-            <span className="title-main">Football</span>
+            <span className="title-main">Trivia</span>
             <span className="title-sub">CHALLENGE</span>
           </h1>
           <p className="subtitle">
-            Name players from <strong>A to Z</strong> · Beat the clock · Outscore your mates
+            Name <strong>A to Z</strong> · Beat the clock · Outscore your mates
           </p>
           <div className="hero-stats">
-            <div className="stat"><span className="stat-num">1000+</span><span className="stat-label">Players</span></div>
+            <div className="stat"><span className="stat-num">6</span><span className="stat-label">Categories</span></div>
             <div className="stat-divider" />
             <div className="stat"><span className="stat-num">26</span><span className="stat-label">Rounds</span></div>
             <div className="stat-divider" />
             <div className="stat"><span className="stat-num">30s</span><span className="stat-label">Per Letter</span></div>
+            <div className="stat-divider" />
+            <div className="stat"><span className="stat-num">2000+</span><span className="stat-label">Names</span></div>
           </div>
         </header>
 
-        {/* Mode Selector */}
+        {/* Game Type Selector */}
         <section className="section-block">
-          <h2 className="section-title"><span className="accent">Choose</span> Your Era</h2>
-          <div className="mode-selector">
-            <div
-              className={`mode-card ${gameMode === 'icons' ? 'selected' : ''}`}
-              onClick={() => setGameMode('icons')}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => e.key === 'Enter' && setGameMode('icons')}
-            >
-              <div className="mode-badge icons-badge">CLASSIC</div>
-              <div className="mode-icon">🏆</div>
-              <h3>Icons Mode</h3>
-              <p className="mode-era">Retired Legends · pre-2015</p>
-              <div className="mode-examples">Ronaldinho · Henry · Zidane · Ronaldo R9 · Pirlo</div>
-              {gameMode === 'icons' && <div className="mode-selected-indicator">✓ Selected</div>}
-            </div>
-
-            <div
-              className={`mode-card ${gameMode === 'modern' ? 'selected' : ''}`}
-              onClick={() => setGameMode('modern')}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => e.key === 'Enter' && setGameMode('modern')}
-            >
-              <div className="mode-badge modern-badge">CURRENT</div>
-              <div className="mode-icon">⚡</div>
-              <h3>Modern Mode</h3>
-              <p className="mode-era">Stars · 2015 – Present</p>
-              <div className="mode-examples">Mbappé · Haaland · Bellingham · Vini Jr · Pedri</div>
-              {gameMode === 'modern' && <div className="mode-selected-indicator">✓ Selected</div>}
-            </div>
+          <h2 className="section-title"><span className="accent">Choose</span> Your Category</h2>
+          <div className="type-selector">
+            {GAME_TYPES.map(t => (
+              <button
+                key={t.id}
+                className={`type-btn ${gameType === t.id ? 'type-btn--active' : ''}`}
+                onClick={() => handleTypeChange(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
+        </section>
+
+        {/* Sub-Mode Selector */}
+        <section className="section-block">
+          <h2 className="section-title"><span className="accent">Choose</span> Your Mode</h2>
+          <div className={`mode-selector ${gameType === 'wwe' ? 'mode-selector--wide' : ''} ${gameType === 'music' ? 'mode-selector--music' : ''}`}>
+            {currentSubModes.map(m => (
+              <div
+                key={m.id}
+                className={`mode-card ${subMode === m.id ? 'selected' : ''}`}
+                onClick={() => setSubMode(m.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && setSubMode(m.id)}
+              >
+                <h3>{m.label}</h3>
+                <p className="mode-era">{m.desc}</p>
+                <div className="mode-examples">{m.examples}</div>
+                {subMode === m.id && <div className="mode-selected-indicator">✓ Selected</div>}
+              </div>
+            ))}
+          </div>
+
+          {/* Music Era sub-selector */}
+          {gameType === 'music' && (
+            <div className="music-era-row">
+              <span className="music-era-label">Era:</span>
+              {MUSIC_ERAS.map(e => (
+                <button
+                  key={e.id}
+                  className={`era-btn ${musicEra === e.id ? 'era-btn--active' : ''}`}
+                  onClick={() => setMusicEra(e.id)}
+                >
+                  {e.label}
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Main Form */}
         <section className="section-block form-section">
           <div className="form-card">
             <h2 className="form-title">Ready to Play?</h2>
+            <div className="selected-mode-pill">
+              {GAME_TYPES.find(t => t.id === gameType)?.emoji}&nbsp;
+              {gameType === 'music'
+                ? `${currentSubModes.find(m => m.id === subMode)?.label} · ${MUSIC_ERAS.find(e => e.id === musicEra)?.label}`
+                : currentSubModes.find(m => m.id === subMode)?.label || subMode}
+            </div>
 
             <div className="input-group">
               <label htmlFor="playerName">Your Name</label>
@@ -186,12 +271,12 @@ export default function Home() {
           <h2 className="section-title">How to <span className="accent">Play</span></h2>
           <div className="rules-grid">
             {[
-              { num: 'A', icon: '🔤', title: 'A to Z', desc: 'Each round is a letter. Name a real player whose name starts with that letter.' },
-              { num: 'B', icon: '⏱', title: 'Beat the Clock', desc: '30 seconds per letter. The faster you answer, the more impressive you look.' },
-              { num: 'C', icon: '💎', title: 'Score Points', desc: 'Harder letters score more. Q and Z are worth 10 pts — can you find them?' },
-              { num: 'D', icon: '🚫', title: 'No Repeats', desc: 'Each player name can only be used once. Choose wisely.' },
+              { icon: '🔤', title: 'A to Z', desc: 'Each round is a letter. Name someone from your chosen category whose name starts with that letter.' },
+              { icon: '⏱', title: 'Beat the Clock', desc: '30 seconds per letter. Answer before the buzzer.' },
+              { icon: '💎', title: 'Score Points', desc: 'Harder letters score more. Q and Z are worth 10 pts — can you find them?' },
+              { icon: '🚫', title: 'No Repeats', desc: 'Each name can only be used once across all players. Choose wisely.' },
             ].map(r => (
-              <div className="rule-card" key={r.num}>
+              <div className="rule-card" key={r.title}>
                 <div className="rule-icon">{r.icon}</div>
                 <h3>{r.title}</h3>
                 <p>{r.desc}</p>
@@ -205,12 +290,12 @@ export default function Home() {
           <h2 className="section-title"><span className="accent">Features</span></h2>
           <div className="features-grid">
             {[
-              { icon: '🌍', label: 'Real-time Multiplayer', desc: 'Play with mates anywhere, instantly' },
-              { icon: '🧠', label: 'Smart Fuzzy Matching', desc: 'Typos forgiven — we know who you mean' },
-              { icon: '🎙️', label: '600+ Nicknames', desc: 'CR7, Dinho, Gazza — all accepted' },
-              { icon: '⏸️', label: 'Pause & Resume', desc: 'Life happens — pick it back up later' },
-              { icon: '📊', label: 'Scrabble Scoring', desc: 'Rare letters = big points. Risk it.' },
-              { icon: '📱', label: 'Mobile-Ready', desc: 'Full experience on any screen size' },
+              { icon: '🌍', label: 'Real-time Multiplayer',   desc: 'Play with mates anywhere, instantly' },
+              { icon: '🧠', label: 'Smart Fuzzy Matching',    desc: 'Typos forgiven — we know who you mean' },
+              { icon: '🎙️', label: '600+ Nicknames',          desc: 'CR7, Dinho, Gazza — all accepted' },
+              { icon: '⏸️', label: 'Pause & Resume',          desc: 'Life happens — pick it back up later' },
+              { icon: '📊', label: 'Scrabble Scoring',        desc: 'Rare letters = big points. Risk it.' },
+              { icon: '📱', label: 'Mobile-Ready',            desc: 'Full experience on any screen size' },
             ].map(f => (
               <div className="feature-card" key={f.label}>
                 <span className="feature-icon">{f.icon}</span>
@@ -243,8 +328,7 @@ export default function Home() {
         </section>
 
         <footer className="footer">
-          <p>A-Z Euro Football Trivia &copy; {new Date().getFullYear()}</p>
-          <p className="footer-coming">🔜 Coming soon: NBA · WWE · Music Artists</p>
+          <p>A-Z Trivia Challenge &copy; {new Date().getFullYear()}</p>
         </footer>
       </div>
 
@@ -359,7 +443,7 @@ export default function Home() {
         }
         .subtitle strong { color: #00ff87; }
         .hero-stats {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 24px;
@@ -367,7 +451,6 @@ export default function Home() {
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 16px;
           padding: 18px 32px;
-          display: inline-flex;
         }
         .stat { text-align: center; }
         .stat-num {
@@ -391,7 +474,7 @@ export default function Home() {
 
         /* ── Section Block ───────────────────────── */
         .section-block {
-          max-width: 900px;
+          max-width: 960px;
           margin: 0 auto 56px;
           position: relative;
           z-index: 1;
@@ -408,18 +491,55 @@ export default function Home() {
         }
         .accent { color: #00ff87; }
 
+        /* ── Game Type Selector ───────────────────── */
+        .type-selector {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
+        }
+        .type-btn {
+          padding: 10px 20px;
+          border-radius: 30px;
+          border: 2px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05);
+          color: #9ba3b8;
+          font-size: 0.95rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .type-btn:hover {
+          border-color: rgba(0,255,135,0.4);
+          color: #e8eaf0;
+          background: rgba(0,255,135,0.06);
+        }
+        .type-btn--active {
+          border-color: #00ff87;
+          background: rgba(0,255,135,0.12);
+          color: #00ff87;
+          box-shadow: 0 0 16px rgba(0,255,135,0.15);
+        }
+
         /* ── Mode Cards ──────────────────────────── */
         .mode-selector {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 16px;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 14px;
+        }
+        .mode-selector--wide {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+        .mode-selector--music {
+          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
         }
         .mode-card {
           position: relative;
           background: rgba(255,255,255,0.04);
           border: 2px solid rgba(255,255,255,0.08);
-          border-radius: 20px;
-          padding: 28px 24px;
+          border-radius: 18px;
+          padding: 22px 18px;
           cursor: pointer;
           transition: all 0.25s ease;
           text-align: center;
@@ -435,61 +555,93 @@ export default function Home() {
         }
         .mode-card:hover {
           border-color: rgba(0,255,135,0.3);
-          transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(0,255,135,0.1);
+          transform: translateY(-3px);
+          box-shadow: 0 10px 35px rgba(0,255,135,0.1);
         }
         .mode-card:hover::before { opacity: 1; }
         .mode-card.selected {
           border-color: #00ff87;
           background: rgba(0,255,135,0.07);
-          box-shadow: 0 0 0 1px rgba(0,255,135,0.2), 0 12px 40px rgba(0,255,135,0.15);
+          box-shadow: 0 0 0 1px rgba(0,255,135,0.2), 0 10px 35px rgba(0,255,135,0.15);
         }
         .mode-card.selected::before { opacity: 1; }
-        .mode-badge {
-          display: inline-block;
-          font-size: 0.65rem;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          padding: 4px 10px;
-          border-radius: 10px;
-          margin-bottom: 14px;
-          text-transform: uppercase;
-        }
-        .icons-badge {
-          background: rgba(255,215,0,0.15);
-          color: #ffd700;
-          border: 1px solid rgba(255,215,0,0.3);
-        }
-        .modern-badge {
-          background: rgba(0,200,255,0.15);
-          color: #00d4ff;
-          border: 1px solid rgba(0,200,255,0.3);
-        }
-        .mode-icon { font-size: 2.8rem; margin-bottom: 10px; }
         .mode-card h3 {
-          font-size: 1.35rem;
+          font-size: 1.05rem;
           font-weight: 800;
           color: #fff;
-          margin: 0 0 6px;
+          margin: 0 0 5px;
         }
         .mode-era {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: #6b7280;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.05em;
           text-transform: uppercase;
-          margin: 0 0 12px;
+          margin: 0 0 10px;
         }
         .mode-examples {
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           color: #9ba3b8;
           font-style: italic;
+          line-height: 1.4;
         }
         .mode-selected-indicator {
-          margin-top: 14px;
-          font-size: 0.8rem;
+          margin-top: 12px;
+          font-size: 0.78rem;
           font-weight: 700;
           color: #00ff87;
           letter-spacing: 0.05em;
+        }
+
+        /* ── Music Era Row ───────────────────────── */
+        .music-era-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 18px;
+        }
+        .music-era-label {
+          color: #6b7280;
+          font-size: 0.85rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .era-btn {
+          padding: 8px 18px;
+          border-radius: 20px;
+          border: 1.5px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.04);
+          color: #9ba3b8;
+          font-size: 0.88rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .era-btn:hover {
+          border-color: rgba(0,255,135,0.35);
+          color: #e8eaf0;
+        }
+        .era-btn--active {
+          border-color: #00ff87;
+          background: rgba(0,255,135,0.1);
+          color: #00ff87;
+        }
+
+        /* ── Selected Mode Pill ──────────────────── */
+        .selected-mode-pill {
+          text-align: center;
+          background: rgba(0,255,135,0.08);
+          border: 1px solid rgba(0,255,135,0.2);
+          color: #00ff87;
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          border-radius: 20px;
+          padding: 7px 16px;
+          margin-bottom: 22px;
+          display: inline-block;
+          width: auto;
         }
 
         /* ── Form Card ───────────────────────────── */
@@ -500,17 +652,18 @@ export default function Home() {
           padding: 36px 32px;
           backdrop-filter: blur(12px);
           box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+          text-align: center;
         }
         .form-title {
           text-align: center;
           color: #fff;
           font-size: 1.5rem;
           font-weight: 800;
-          margin: 0 0 28px;
+          margin: 0 0 20px;
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
-        .input-group { margin-bottom: 18px; }
+        .input-group { margin-bottom: 18px; text-align: left; }
         .input-group label {
           display: block;
           margin-bottom: 7px;
@@ -762,11 +915,6 @@ export default function Home() {
           position: relative;
           z-index: 1;
         }
-        .footer-coming {
-          margin-top: 6px;
-          color: #ffd700;
-          font-size: 0.8rem;
-        }
 
         /* ── Animations ──────────────────────────── */
         @keyframes spin {
@@ -781,6 +929,8 @@ export default function Home() {
           .join-row { flex-direction: column; }
           .btn-secondary { width: 100%; }
           .scoring-grid { grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); }
+          .hero-stats { gap: 12px; padding: 12px 16px; }
+          .stat-num { font-size: 1.3rem; }
         }
       `}</style>
     </>
