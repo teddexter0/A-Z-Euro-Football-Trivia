@@ -615,6 +615,589 @@ const PLAYER_ALIASES = {
   'carvajal':         'Dani Carvajal',            // D round
 };
 
+// ─── Did You Know? Football Facts ───────────────────────────────────────────
+const FOOTBALL_FACTS = [
+  { player: 'Lionel Messi', fact: 'Messi has won the Ballon d\'Or a record 8 times — more than any other player in history.' },
+  { player: 'Cristiano Ronaldo', fact: 'Ronaldo is the all-time leading international goal scorer with over 130 goals for Portugal.' },
+  { player: 'Ronaldinho', fact: 'Ronaldinho was once voted the best player in the world two years in a row (2004 & 2005) and was known for never once receiving a red card in his club career.' },
+  { player: 'Zinédine Zidane', fact: 'Zidane scored one of the greatest goals in Champions League history — a left-footed volley for Real Madrid vs Bayer Leverkusen in 2002.' },
+  { player: 'Ronaldo Nazário', fact: '"El Fenomeno" scored both goals in Brazil\'s 2002 World Cup final win, silencing critics who doubted his recovery from a serious knee injury.' },
+  { player: 'Thierry Henry', fact: 'Henry went an entire Premier League season (2001–02) without receiving a single yellow card.' },
+  { player: 'Gerd Müller', fact: 'Gerd Müller once scored 85 goals in a single calendar year — a record that stood for decades until Messi broke it in 2012.' },
+  { player: 'Paolo Maldini', fact: 'Maldini played his entire 25-year senior career at AC Milan and never received a straight red card in the Champions League.' },
+  { player: 'Peter Schmeichel', fact: 'Schmeichel scored 11 career goals as a goalkeeper — including headers and long throws during set pieces.' },
+  { player: 'Diego Maradona', fact: 'Maradona scored two goals in the same match against England in 1986 that became the most debated in football history — the "Hand of God" and the "Goal of the Century".' },
+  { player: 'Robert Lewandowski', fact: 'Lewandowski scored 5 goals in 9 minutes as a substitute for Bayern Munich against Wolfsburg in 2015 — an all-time Bundesliga record.' },
+  { player: 'Erling Haaland', fact: 'Haaland scored 36 Premier League goals in his debut season for Man City — a single-season PL record.' },
+  { player: 'Kylian Mbappé', fact: 'Mbappé became only the second teenager ever to score in a World Cup Final when France beat Croatia in 2018.' },
+  { player: 'Pelé', fact: 'Pelé reportedly scored over 1,000 career goals — though the official FIFA count and independent researchers debate the exact total.' },
+  { player: 'Lev Yashin', fact: 'Lev Yashin is the only goalkeeper to have ever won the Ballon d\'Or (1963). He was known as the "Black Spider".' },
+  { player: 'Zlatan Ibrahimović', fact: 'Ibrahimović scored one of the greatest overhead kicks in history — from 30 yards against England in 2012, aged 31.' },
+  { player: 'Kaká', fact: 'Kaká won the Ballon d\'Or in 2007 without playing a single UEFA Champions League game past the Round of 16 that season — he won it at club level overall.' },
+  { player: 'Andrés Iniesta', fact: 'Iniesta scored the winning goal in the 2010 World Cup Final in extra time — making him one of the most celebrated players in Spanish football history.' },
+  { player: 'Xavi Hernández', fact: 'Xavi completed 91% of his passes in the 2010 World Cup — still one of the highest-ever recorded pass accuracy rates at a major tournament.' },
+  { player: 'Oliver Kahn', fact: 'Kahn is the only goalkeeper to have won the Golden Ball award at a FIFA World Cup (2002).' },
+  { player: 'Samuel Eto\'o', fact: 'Eto\'o won the African Player of the Year award 4 times — more than any other player before the rise of Salah and Mané.' },
+  { player: 'Didier Drogba', fact: 'Drogba scored in 4 separate FA Cup Finals for Chelsea — a record. He also netted the equaliser in the 2012 Champions League Final minutes before full time.' },
+  { player: 'Wayne Rooney', fact: 'Rooney is England\'s all-time top goal scorer with 53 goals, and scored his first senior international goal as a 17-year-old.' },
+  { player: 'Steven Gerrard', fact: 'Gerrard is one of only 5 players to have scored in an FA Cup Final, League Cup Final, UEFA Cup Final, and Champions League Final.' },
+  { player: 'Patrick Vieira', fact: 'Vieira was part of Arsenal\'s "Invincibles" squad in 2003–04 that went the entire Premier League season unbeaten (38 games).' },
+  { player: 'Dennis Bergkamp', fact: 'Bergkamp was famously terrified of flying and drove or took the Eurostar to away matches in Europe during his career.' },
+  { player: 'Eric Cantona', fact: 'Cantona memorably said: "When the seagulls follow the trawler, it\'s because they think sardines will be thrown into the sea." Still baffles journalists today.' },
+  { player: 'George Best', fact: 'George Best was the first true football superstar — a cultural icon in the 60s who was once described as the 5th Beatle.' },
+  { player: 'Johan Cruyff', fact: 'Cruyff invented the "Cruyff Turn" in the 1974 World Cup against Sweden and revolutionised modern football with his tactical philosophy.' },
+  { player: 'Franz Beckenbauer', fact: 'Beckenbauer is one of only two people to have won the World Cup both as a player (1974) and as a manager (1990).' },
+  { player: 'Ronaldo Nazário', fact: 'Ronaldo is considered the most complete striker of his generation — praised by both Messi and Ronaldo as their biggest inspiration.' },
+  { player: 'Neymar', fact: 'Neymar holds the record for the most expensive transfer ever — PSG paid Barcelona €222 million for him in 2017.' },
+  { player: 'Mohamed Salah', fact: 'Salah scored 32 Premier League goals in the 2017–18 season — equalling the all-time record for a 38-game season.' },
+  { player: 'Kevin De Bruyne', fact: 'De Bruyne had his season ended by injury in 2017 but still managed 18 assists in a single PL season — a joint record at the time.' },
+  { player: 'Luka Modrić', fact: 'Modrić ended the 12-year Messi–Ronaldo domination of the Ballon d\'Or in 2018, winning after Croatia\'s World Cup Final run.' },
+  { player: 'Virgil van Dijk', fact: 'Van Dijk was only the second defender ever to be shortlisted for the Ballon d\'Or in the modern era (2019), finishing 2nd behind Messi.' },
+  { player: 'David Beckham', fact: 'Beckham scored from the halfway line vs Wimbledon on the opening day of the 1996–97 season aged just 21 — and became a global icon.' },
+  { player: 'Sergio Agüero', fact: 'Agüero scored the most dramatic goal in Premier League history — in the 94th minute of the final day of the 2011–12 season to win Man City the title.' },
+  { player: 'Frank Lampard', fact: 'Lampard holds the record for goals scored by a midfielder in the Premier League, with 177 goals for Chelsea.' },
+  { player: 'Iker Casillas', fact: 'Casillas played 725 games for Real Madrid and kept more clean sheets in La Liga than any other goalkeeper.' },
+  { player: 'Gianluigi Buffon', fact: 'Buffon went a record 974 consecutive minutes without conceding in Serie A during the 2015–16 season — nearly 11 full matches.' },
+  { player: 'Karim Benzema', fact: 'Benzema won the Ballon d\'Or in 2022, aged 34 — proving he was elite even in his mid-30s. He scored a hat-trick to eliminate PSG in that Champions League campaign.' },
+  { player: 'Thibaut Courtois', fact: 'Courtois won the Golden Glove at the 2022 World Cup AND the 2022 Champions League in the same year, cementing himself as arguably the world\'s best goalkeeper.' },
+  { player: 'Eden Hazard', fact: 'Hazard was rated as the best player in the Premier League by multiple rivals — Messi once named him the hardest player to face.' },
+  { player: 'Harry Kane', fact: 'Kane went his entire Premier League career up to 2023 without winning a major trophy in England — then moved to Bayern Munich to chase silverware.' },
+  { player: 'Jude Bellingham', fact: 'Bellingham became the first player in Champions League history to score in each of his first 5 appearances in the competition.' },
+  { player: 'Vinícius Júnior', fact: 'Vinicius became the first Brazilian to win the Ballon d\'Or in 2024 — and was only 24 years old at the time.' },
+  { player: 'Rúben Dias', fact: 'Dias won the PFA Players\' Player of the Year award in his very first season at Man City (2020–21) — extremely rare for a defender.' },
+  { player: 'Roberto Carlos', fact: 'Roberto Carlos scored a famously impossible free-kick against France in 1997 — initially thought to be a fluke, it\'s now studied in physics textbooks.' },
+  { player: 'Ronaldo (Brazilian)', fact: 'Ronaldo\'s boots reportedly went missing on the morning of the 1998 World Cup Final — fuelling decades of conspiracy theories about why he played so poorly.' },
+  { player: 'Luis Suárez', fact: 'Suárez scored 31 Premier League goals in a single season for Liverpool (2013–14), finishing 2nd in the title race by just 2 points.' },
+  { player: 'Robin van Persie', fact: 'Van Persie\'s diving header against Spain in the 2014 World Cup is considered one of the greatest goals ever scored.' },
+  { player: 'Eusébio', fact: 'Eusébio scored 9 goals in the 1966 World Cup — still the record for a single African-born player at the tournament.' },
+  { player: 'Romário', fact: 'Romário claimed to have scored 1,000 career goals — though the Brazilian football confederation officially counted 772.' },
+  { player: 'Marcel Desailly', fact: 'Desailly won the Champions League and the World Cup in consecutive years (1994 with AC Milan, 1998 with France).' },
+  { player: 'Fabio Cannavaro', fact: 'Cannavaro is the last defender to win the Ballon d\'Or — he did so in 2006 after captaining Italy to the World Cup.' },
+  { player: 'Ricardo Kaká', fact: 'At his peak, Kaká was so dominant that Real Madrid paid €67 million for him in 2009 — then a world record for a midfielder.' },
+  { player: 'Dani Alves', fact: 'Dani Alves won 43 major trophies during his career — the most by any professional footballer in history.' },
+  { player: 'Philipp Lahm', fact: 'Lahm played his entire career at Bayern Munich and retired at 33 at the absolute peak of his powers — one of the most disciplined exits in football history.' },
+  { player: 'Xabi Alonso', fact: 'Alonso scored a goal from the halfway line while playing for Liverpool against Luton Town in the FA Cup in 2006 — one of the most iconic long-range goals in history.' },
+  { player: 'Michael Owen', fact: 'Owen won the Ballon d\'Or in 2001 aged just 21 — the youngest English winner and one of the youngest ever at that time.' },
+  { player: 'Ruud van Nistelrooy', fact: 'Van Nistelrooy scored in 10 consecutive Champions League matches for Manchester United — still a record.' },
+  { player: 'Raúl González', fact: 'Raúl was Real Madrid\'s all-time leading scorer before Cristiano Ronaldo arrived — he held the record for over a decade.' },
+  { player: 'Hernán Crespo', fact: 'Crespo scored two goals in the 2005 Champions League Final for AC Milan — and STILL ended up on the losing side after Liverpool\'s legendary comeback.' },
+  { player: 'Paolo Maldini', fact: 'Maldini played his 1000th game for AC Milan at age 38 and was still considered one of the best defenders in Serie A that season.' },
+  { player: 'Alessandro Del Piero', fact: 'Del Piero scored the goal of the tournament at the 2006 World Cup — a curling finish against Germany in the semi-final in injury time.' },
+  { player: 'Francesco Totti', fact: 'Totti played his entire career at Roma — 25 years. His final match was a send-off watched by 70,000 fans in tears in the stadium.' },
+  { player: 'Andrea Pirlo', fact: 'Pirlo had the nickname "Il Maestro" but also "The Architect" — he once said he played with a glass of wine in his mind, always calm.' },
+  { player: 'Franco Baresi', fact: 'Baresi played all 90 minutes of the 1994 World Cup Final while recovering from knee surgery — and the tournament was just weeks after his operation.' },
+  { player: 'Pavel Nedvěd', fact: 'Nedvěd won the Ballon d\'Or in 2003 despite not playing in the Champions League Final — Juventus were knocked out in the semis.' },
+  { player: 'Luis Figo', fact: 'Figo was pelted with a pig\'s head by Barcelona fans when he returned to the Nou Camp as a Real Madrid player — one of the most hostile receptions in football.' },
+  { player: 'Clarence Seedorf', fact: 'Seedorf is the only player to have won the UEFA Champions League with three different clubs: Ajax, Real Madrid, and AC Milan.' },
+  { player: 'Peter Shilton', fact: 'Shilton had the most England caps for 20+ years with 125 appearances — still the most by any outfield-or-goalkeeper in Three Lions history.' },
+  { player: 'Ryan Giggs', fact: 'Giggs won the Premier League 13 times — more than any other player in football history, all with Manchester United.' },
+  { player: 'Paul Scholes', fact: 'Scholes was so respected that Xavi called him "the best midfielder of his generation" — despite Scholes never winning the Champions League he deserved.' },
+  { player: 'Roy Keane', fact: 'Keane was stripped of the Man United captaincy after a brutal interview criticising his own teammates live on the club\'s MUTV channel.' },
+  { player: 'Filippo Inzaghi', fact: 'Inzaghi once said: "Every time I enter the penalty area, a penalty is given to me or I score." He was the ultimate poacher.' },
+  { player: 'Ronaldinho', fact: 'In 2004, Ronaldinho did an advert for Nike where he hit the crossbar FOUR times in a row from outside the box — it was confirmed as real footage, not CGI.' },
+  { player: 'Thierry Henry', fact: 'Henry once handled the ball to set up William Gallas for the goal that sent France to the 2010 World Cup — the "Hand of Thierry" still controversial in Ireland.' },
+  { player: 'Wayne Rooney', fact: 'Rooney scored a bicycle kick against Manchester City in 2011 that was voted the best Premier League goal of all time in multiple polls.' },
+  { player: 'Neymar', fact: 'Neymar is one of only 4 players to ever score 100+ goals for Barcelona, alongside Messi, Ronaldo, and Cruyff.' },
+  { player: 'Zlatan Ibrahimović', fact: 'Ibrahimović scored goals in all 4 of the major European leagues — La Liga, Serie A, Ligue 1, and the Premier League. He did not need the Champions League to prove himself.' },
+  { player: 'Eden Hazard', fact: 'Hazard\'s dribbling was so distinctive that defenders admitted guarding him was "impossible" — he once dribbled through the entire QPR team in a training session, per teammate testimony.' },
+  { player: 'Gareth Bale', fact: 'Bale\'s overhead kick in the 2018 Champions League Final is widely regarded as the greatest bicycle kick ever scored in a major final.' },
+  { player: 'Cesc Fàbregas', fact: 'Fàbregas debuted for Arsenal at 16 years old — and still holds the record as Arsenal\'s youngest-ever first-team goalscorer.' },
+  { player: 'Carlos Tevez', fact: 'Tevez had an extraordinary journey — born in poverty in Buenos Aires, he was scarred by an accident as a child and went on to earn more than £300k/week at his peak.' },
+  { player: 'Dimitar Berbatov', fact: 'Berbatov scored 5 goals for Manchester United in a single Premier League game against Blackburn in 2010 — one of them was an audacious backheeled volley.' },
+  { player: 'Peter Schmeichel', fact: 'Schmeichel was so commanding that he once confronted Eric Cantona mid-game in the dressing room at half-time — Cantona apparently backed down.' },
+  { player: 'Sadio Mané', fact: 'Mané grew up in a small village in Senegal that had no football pitch. He built one from local materials as a teenager and trained there every day.' },
+  { player: 'N\'Golo Kanté', fact: 'Kanté is widely reported to have never been late for training in his entire professional career — one of the most respected professionals in the game.' },
+  { player: 'Antoine Griezmann', fact: 'Griezmann is one of the few players to have scored in every round of a World Cup knockout stage in a single tournament (2018).' },
+  { player: 'Riyad Mahrez', fact: 'Mahrez was playing in the French 4th division at age 21 — just 5 years later he was a Premier League champion and African Player of the Year.' },
+  { player: 'Bernardo Silva', fact: 'Bernardo Silva went from being Benfica\'s youth academy player to becoming one of the most-wanted midfielders in world football, reportedly almost joining Barcelona multiple times.' },
+  { player: 'Toni Kroos', fact: 'Kroos retired from international football after Germany\'s World Cup exit in 2018 — then came back for Euro 2024, and Germany reached the quarter-finals.' },
+  { player: 'Sergio Ramos', fact: 'Ramos holds the record for most red cards in La Liga history (27) and Champions League history (twice). He is also Spain\'s most-capped outfield player.' },
+  { player: 'Marcelo', fact: 'Marcelo won 25 major trophies with Real Madrid — more than any other player in the club\'s history.' },
+  { player: 'Roberto Carlos', fact: 'Carlos\'s famous swerving free kick vs France in 1997 was originally ruled out due to a wall infringement — but the referee reversed his decision and allowed it.' },
+  { player: 'Khvicha Kvaratskhelia', fact: 'Kvaratskhelia was sold by Napoli for €70 million to PSG in 2025 — despite having been bought for just €10 million two years earlier.' },
+  { player: 'Rodri', fact: 'Rodri won the Ballon d\'Or in 2024 — the first holding midfielder to do so. He also went the entire Premier League season unbeaten with Man City in 2023–24.' },
+  { player: 'Bukayo Saka', fact: 'Saka has been Arsenal\'s player of the season for multiple consecutive years despite being in his early 20s — marking him as one of Europe\'s most consistent wingers.' },
+  { player: 'Lamine Yamal', fact: 'Yamal became the youngest player to score at a European Championship final (Euro 2024) aged just 17 — the day before his birthday.' },
+  { player: 'Pedri', fact: 'Pedri won the Kopa Trophy (best under-21 player) and was nominated for the Ballon d\'Or at age 19 — the same year he played over 70 games across club and country.' },
+  { player: 'Gavi', fact: 'Gavi is Barcelona\'s homegrown midfield maestro who won the Kopa Trophy in 2022 aged 18 — sometimes called the natural heir to Xavi\'s throne at the club.' },
+  { player: 'Rafael Leão', fact: 'Leão reportedly had a release clause of €175 million in his AC Milan contract — making him one of the most valued players in Serie A history.' },
+  { player: 'Achraf Hakimi', fact: 'Hakimi was born in Madrid but chose to represent Morocco — and led his country to the World Cup semi-final in 2022, the best-ever performance by an African nation.' },
+];
+
+// ─── GameBoard CSS ───────────────────────────────────────────────────────────
+const GB_STYLES = `
+  /* ── Shell ──────────────────────────────────────── */
+  .gb-shell {
+    min-height: 100vh;
+    background: #070b14;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -5%, rgba(0,255,135,0.07) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 90% 90%, rgba(0,200,255,0.05) 0%, transparent 55%);
+    color: #e8eaf0;
+    font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+  }
+  .gb-shell.gb-center {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gb-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 16px 60px;
+  }
+
+  /* ── Spinner ─────────────────────────────────────── */
+  .gb-spinner-wrap {
+    text-align: center;
+  }
+  .gb-spinner {
+    width: 52px; height: 52px;
+    border: 4px solid rgba(0,255,135,0.15);
+    border-top-color: #00ff87;
+    border-radius: 50%;
+    animation: gbSpin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  .gb-spinner-title {
+    display: block; font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 6px;
+  }
+  .gb-spinner-sub { display: block; color: #6b7280; font-size: 0.9rem; }
+
+  /* ── Overlay cards (error / winner) ─────────────── */
+  .gb-overlay-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 40px 36px;
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+    margin: 20px;
+  }
+  .gb-overlay-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 8px; }
+  .gb-overlay-sub { color: #6b7280; margin: 0 0 24px; }
+  .gb-winner-card { max-width: 520px; }
+  .gb-winner-trophy { font-size: 4rem; margin-bottom: 8px; animation: gbBounce 1s ease infinite; }
+  .gb-winner-title { font-size: 2rem; font-weight: 900; color: #fff; margin: 0 0 6px; text-transform: uppercase; }
+  .gb-winner-name { font-size: 1.5rem; font-weight: 800; color: #00ff87; margin-bottom: 28px; }
+  .gb-final-scores { margin-bottom: 28px; }
+  .gb-score-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+  }
+  .gb-score-row--winner {
+    background: rgba(0,255,135,0.08);
+    border-color: rgba(0,255,135,0.3);
+  }
+  .gb-score-rank { color: #6b7280; font-size: 0.85rem; font-weight: 600; min-width: 28px; }
+  .gb-score-pname { flex: 1; font-weight: 700; color: #e8eaf0; }
+  .gb-score-pts { font-weight: 800; color: #00ff87; }
+
+  /* ── Buttons ─────────────────────────────────────── */
+  .gb-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 13px 22px; border: none; border-radius: 10px;
+    font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .gb-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+  .gb-btn-green { background: linear-gradient(135deg,#00ff87,#00c853); color: #070b14; }
+  .gb-btn-green:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,255,135,0.3); }
+  .gb-btn-blue { background: linear-gradient(135deg,#00d4ff,#0080ff); color: #fff; }
+  .gb-btn-blue:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,200,255,0.25); }
+  .gb-btn-sent { background: rgba(0,255,135,0.15); color: #00ff87; border: 1px solid rgba(0,255,135,0.3); }
+  .gb-btn-disabled { background: rgba(255,255,255,0.06); color: #4b5563; border: 1px solid rgba(255,255,255,0.08); }
+  .gb-btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .gb-icon-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 8px 12px; color: #e8eaf0;
+    cursor: pointer; font-size: 1rem; transition: all 0.2s;
+  }
+  .gb-icon-btn:hover { background: rgba(255,255,255,0.1); }
+
+  /* ── DYK Popup ───────────────────────────────────── */
+  .gb-dyk-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: gbFadeIn 0.25s ease;
+  }
+  .gb-dyk-card {
+    background: #0e1525;
+    border: 1px solid rgba(0,255,135,0.25);
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(0,255,135,0.1);
+    animation: gbSlideUp 0.3s ease;
+  }
+  .gb-dyk-badge {
+    display: inline-block;
+    background: rgba(0,255,135,0.1);
+    border: 1px solid rgba(0,255,135,0.3);
+    color: #00ff87;
+    font-size: 0.7rem; font-weight: 800;
+    letter-spacing: 0.15em;
+    padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .gb-dyk-player {
+    font-size: 1.2rem; font-weight: 800; color: #ffd700;
+    margin-bottom: 14px;
+  }
+  .gb-dyk-fact {
+    color: #9ba3b8; font-size: 1rem; line-height: 1.65;
+    margin: 0 0 24px;
+  }
+  .gb-dyk-close { width: 100%; max-width: 220px; }
+
+  /* ── Header ──────────────────────────────────────── */
+  .gb-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 0 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .gb-header-left { display: flex; align-items: baseline; gap: 8px; }
+  .gb-logo {
+    font-size: 1.6rem; font-weight: 900;
+    background: linear-gradient(135deg,#00ff87,#00d4ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gb-logo-sub {
+    font-size: 0.9rem; font-weight: 600; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .gb-header-chips { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .gb-chip {
+    font-size: 0.78rem; font-weight: 600;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 5px 12px; color: #9ba3b8;
+  }
+  .gb-chip--room { color: #e8eaf0; }
+  .gb-chip--ok { color: #00ff87; border-color: rgba(0,255,135,0.3); background: rgba(0,255,135,0.08); }
+  .gb-chip--warn { color: #f59e0b; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.08); }
+  .gb-header-actions { display: flex; gap: 6px; }
+
+  /* ── Letter section ──────────────────────────────── */
+  .gb-letter-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 24px 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .gb-alpha-strip {
+    display: flex; justify-content: center;
+    gap: 4px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .gb-alpha-tile {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 11px; font-weight: 700;
+    background: rgba(255,255,255,0.04);
+    color: #374151;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .gb-alpha-done {
+    background: rgba(0,255,135,0.15);
+    color: #00ff87;
+    border-color: rgba(0,255,135,0.2);
+  }
+  .gb-alpha-current {
+    background: rgba(0,255,135,0.2);
+    color: #00ff87;
+    border-color: #00ff87;
+    transform: scale(1.18);
+    box-shadow: 0 0 12px rgba(0,255,135,0.35);
+    animation: gbPulse 1.5s ease-in-out infinite;
+  }
+  .gb-big-letter-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .gb-big-letter {
+    font-size: clamp(5rem, 18vw, 9rem);
+    font-weight: 900;
+    color: rgba(255,255,255,0.08);
+    line-height: 1;
+    text-shadow: none;
+    transition: all 0.3s;
+    letter-spacing: -0.02em;
+  }
+  .gb-big-letter--active {
+    color: #fff;
+    text-shadow: 0 0 60px rgba(0,255,135,0.5), 0 0 20px rgba(0,255,135,0.3);
+    animation: gbLetterGlow 2s ease-in-out infinite;
+  }
+  .gb-letter-score-badge {
+    position: absolute; top: 4px; right: -24px;
+    background: rgba(255,215,0,0.15);
+    border: 1px solid rgba(255,215,0,0.3);
+    color: #ffd700;
+    font-size: 0.75rem; font-weight: 800;
+    padding: 3px 8px; border-radius: 10px;
+    white-space: nowrap;
+  }
+  .gb-timer-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .gb-timer-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 3px solid;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 900;
+    flex-shrink: 0;
+    transition: all 0.5s;
+  }
+  .gb-timer-bar-wrap {
+    flex: 1; max-width: 280px; height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px; overflow: hidden;
+  }
+  .gb-timer-bar-fill {
+    height: 100%; border-radius: 4px;
+  }
+  .gb-pause-btn {
+    padding: 8px 14px;
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: #f59e0b;
+    border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 0.85rem;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .gb-pause-btn--resume {
+    background: rgba(0,255,135,0.1);
+    border-color: rgba(0,255,135,0.3);
+    color: #00ff87;
+  }
+  .gb-paused-banner {
+    margin-top: 14px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #f59e0b;
+    font-size: 0.95rem;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+  }
+  .gb-paused-resume { padding: 7px 16px; font-size: 0.82rem; }
+
+  /* ── Input section ───────────────────────────────── */
+  .gb-input-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .gb-start-wrap { text-align: center; }
+  .gb-start-title { font-size: 1.1rem; font-weight: 700; color: #9ba3b8; margin-bottom: 14px; }
+  .gb-start-btn { font-size: 1.1rem; padding: 15px 40px; }
+  .gb-waiting {
+    display: flex; align-items: center; gap: 10px;
+    color: #6b7280; font-size: 0.9rem; justify-content: center;
+    padding: 8px 0;
+  }
+  .gb-waiting-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #00ff87;
+    animation: gbBlink 1s ease-in-out infinite;
+  }
+  .gb-answer-row {
+    display: flex; gap: 10px; margin-bottom: 12px;
+  }
+  .gb-answer-input {
+    flex: 1; padding: 14px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    font-size: 1.05rem; color: #e8eaf0;
+    transition: all 0.2s;
+  }
+  .gb-answer-input::placeholder { color: #4b5563; }
+  .gb-answer-input:focus {
+    outline: none;
+    border-color: #00ff87;
+    box-shadow: 0 0 0 3px rgba(0,255,135,0.12);
+    background: rgba(0,255,135,0.04);
+  }
+  .gb-answer-input--sent {
+    border-color: rgba(0,255,135,0.3);
+    background: rgba(0,255,135,0.06);
+  }
+  .gb-answer-input--paused {
+    border-color: rgba(245,158,11,0.25);
+    background: rgba(245,158,11,0.04);
+  }
+  .gb-submit-btn { flex-shrink: 0; min-width: 110px; }
+  .gb-message {
+    border-radius: 10px; padding: 12px 16px;
+    font-weight: 700; font-size: 0.95rem;
+    margin-top: 6px;
+  }
+  .gb-msg-ok { background: rgba(0,255,135,0.1); border: 1px solid rgba(0,255,135,0.25); color: #00ff87; }
+  .gb-msg-err { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.25); color: #ff6b6b; }
+  .gb-msg-info { background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.2); color: #7dd3fc; }
+
+  /* ── Sections ────────────────────────────────────── */
+  .gb-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .gb-section-title {
+    font-size: 1rem; font-weight: 700; color: #9ba3b8;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin: 0 0 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .gb-accent { color: #00ff87; }
+  .gb-count {
+    background: rgba(0,255,135,0.1);
+    border: 1px solid rgba(0,255,135,0.2);
+    color: #00ff87;
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 0.8rem;
+  }
+
+  /* ── Players grid ────────────────────────────────── */
+  .gb-players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .gb-player-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: all 0.2s;
+  }
+  .gb-player-card--you {
+    border-color: rgba(0,255,135,0.3);
+    background: rgba(0,255,135,0.05);
+    box-shadow: 0 0 20px rgba(0,255,135,0.08);
+  }
+  .gb-player-top {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .gb-player-rank { color: #4b5563; font-size: 0.78rem; font-weight: 700; min-width: 22px; }
+  .gb-player-name {
+    flex: 1; font-weight: 700; color: #e8eaf0; font-size: 0.95rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .gb-you-badge {
+    font-size: 0.65rem; font-weight: 800;
+    background: rgba(0,255,135,0.15); color: #00ff87;
+    border: 1px solid rgba(0,255,135,0.3);
+    padding: 1px 6px; border-radius: 6px; letter-spacing: 0.05em;
+  }
+  .gb-player-pts {
+    font-weight: 900; color: #ffd700; font-size: 1rem;
+    white-space: nowrap;
+  }
+  .gb-player-pts span { font-size: 0.65rem; color: #6b7280; margin-left: 2px; }
+  .gb-player-status {
+    font-size: 0.82rem; color: #4b5563;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px; padding: 5px 8px;
+  }
+  .gb-status-ok { color: #00ff87; background: rgba(0,255,135,0.06); }
+  .gb-status-err { color: #ff6b6b; background: rgba(255,68,68,0.06); }
+
+  /* ── Round Results ───────────────────────────────── */
+  .gb-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .gb-result-card {
+    border-radius: 12px; padding: 14px; text-align: center;
+    border: 1px solid;
+  }
+  .gb-result-card--ok {
+    background: rgba(0,255,135,0.06);
+    border-color: rgba(0,255,135,0.25);
+  }
+  .gb-result-card--err {
+    background: rgba(255,68,68,0.06);
+    border-color: rgba(255,68,68,0.2);
+  }
+  .gb-result-player { font-weight: 700; color: #e8eaf0; margin-bottom: 5px; }
+  .gb-result-answer { color: #9ba3b8; font-size: 0.9rem; margin-bottom: 5px; }
+  .gb-result-pts { font-weight: 800; font-size: 0.9rem; }
+  .gb-result-card--ok .gb-result-pts { color: #00ff87; }
+  .gb-result-card--err .gb-result-pts { color: #ff6b6b; }
+
+  /* ── Stats bar ───────────────────────────────────── */
+  .gb-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .gb-stat-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .gb-stat-val { display: block; font-weight: 800; font-size: 1.15rem; color: #00ff87; line-height: 1; margin-bottom: 4px; }
+  .gb-stat-lbl { font-size: 0.68rem; color: #4b5563; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── Tags (used players) ─────────────────────────── */
+  .gb-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .gb-tag {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #6b7280;
+    font-size: 0.8rem;
+    padding: 4px 10px; border-radius: 12px;
+  }
+  .gb-tag--more {
+    background: rgba(0,255,135,0.08);
+    border-color: rgba(0,255,135,0.2);
+    color: #00ff87;
+  }
+
+  /* ── Keyframes ───────────────────────────────────── */
+  @keyframes gbSpin { to { transform: rotate(360deg); } }
+  @keyframes gbBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes gbPulse { 0%,100% { box-shadow: 0 0 12px rgba(0,255,135,0.3); } 50% { box-shadow: 0 0 20px rgba(0,255,135,0.55); } }
+  @keyframes gbLetterGlow { 0%,100% { text-shadow: 0 0 40px rgba(0,255,135,0.35); } 50% { text-shadow: 0 0 80px rgba(0,255,135,0.65), 0 0 30px rgba(0,255,135,0.4); } }
+  @keyframes gbFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes gbSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes gbBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* ── Responsive ──────────────────────────────────── */
+  @media (max-width: 600px) {
+    .gb-answer-row { flex-direction: column; }
+    .gb-submit-btn { width: 100%; }
+    .gb-stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .gb-header { justify-content: space-between; }
+    .gb-timer-row { gap: 10px; }
+    .gb-timer-bar-wrap { max-width: 160px; }
+    .gb-letter-score-badge { right: -10px; font-size: 0.65rem; }
+  }
+`;
+
 const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
@@ -639,9 +1222,13 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [pausedBy, setPausedBy] = useState(null);
   
+  const [showFact, setShowFact] = useState(false);
+  const [currentFact, setCurrentFact] = useState(null);
+
   const fuseRef = useRef(null);
   const socketRef = useRef(null);
   const playerDatabaseRef = useRef([]);
+  const usedFactIndicesRef = useRef([]);
 
   // Strips diacritics and non-alpha characters — used for DB/Fuse comparison
   const normalizePlayerName = (name) => {
@@ -757,7 +1344,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
             roundAnswers: results.answers,
             isActive: false
           }));
-          
+
           const playerResults = results.answers[playerName];
           if (playerResults?.isValid) {
             setMessage(`✅ "${playerResults.answer}" correct! +${playerResults.points} pts`);
@@ -766,6 +1353,8 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           } else {
             setMessage('⏰ Time up!');
           }
+          // Show a Did You Know fact during the inter-round pause
+          showRandomFact();
         });
 
         newSocket.on('game-complete', (data) => {
@@ -880,6 +1469,22 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const handleResumeGame = () => {
     if (!socket || !isPaused) return;
     socket.emit('resume-game', { roomId });
+  };
+
+  // Show a random DYK fact between rounds (on round-complete)
+  const showRandomFact = () => {
+    if (FOOTBALL_FACTS.length === 0) return;
+    // Reset pool once all facts shown
+    if (usedFactIndicesRef.current.length >= FOOTBALL_FACTS.length) {
+      usedFactIndicesRef.current = [];
+    }
+    const available = FOOTBALL_FACTS.map((_, i) => i).filter(
+      i => !usedFactIndicesRef.current.includes(i)
+    );
+    const pick = available[Math.floor(Math.random() * available.length)];
+    usedFactIndicesRef.current.push(pick);
+    setCurrentFact(FOOTBALL_FACTS[pick]);
+    setShowFact(true);
   };
 
   const handleSubmitAnswer = () => {
@@ -1021,519 +1626,310 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     return { valid: false, reason: 'not found' };
   };
 
-  // Loading screen
+  // ── Loading screen ───────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        textAlign: 'center'
-      }}>
-        <div>
-          <div style={{
-            width: '50px', height: '50px', 
-            border: '4px solid rgba(255,255,255,0.3)',
-            borderTop: '4px solid white',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
-          <h2>🎮 Loading Game...</h2>
-          <p>Loading {gameMode} players...</p>
+      <div className="gb-shell gb-center">
+        <div className="gb-spinner-wrap">
+          <div className="gb-spinner" />
+          <div className="gb-spinner-text">
+            <span className="gb-spinner-title">Loading Game…</span>
+            <span className="gb-spinner-sub">Fetching {gameMode === 'icons' ? '🏆 Icons' : '⚡ Modern'} players</span>
+          </div>
         </div>
+        <style jsx>{GB_STYLES}</style>
       </div>
     );
   }
 
-  // Error screen
+  // ── Error screen ──────────────────────────────────────────────────────────
   if (connectionStatus === 'error') {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        textAlign: 'center'
-      }}>
-        <div>
-          <h2>🚫 Connection Error</h2>
-          <p>Cannot connect to game server</p>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              background: '#10b981', color: 'white', border: 'none',
-              padding: '15px 30px', borderRadius: '10px', 
-              fontSize: '1.1rem', cursor: 'pointer', marginTop: '20px'
-            }}
-          >
+      <div className="gb-shell gb-center">
+        <div className="gb-overlay-card">
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🚫</div>
+          <h2 className="gb-overlay-title">Connection Error</h2>
+          <p className="gb-overlay-sub">Cannot reach game server</p>
+          <button className="gb-btn gb-btn-green" onClick={() => window.location.reload()}>
             🔄 Retry
           </button>
         </div>
+        <style jsx>{GB_STYLES}</style>
       </div>
     );
   }
 
-  // Game complete
+  // ── Game complete ─────────────────────────────────────────────────────────
   if (gameState.winner) {
+    const sortedScores = Object.entries(gameState.scores).sort(([, a], [, b]) => b - a);
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '40px',
-          textAlign: 'center',
-          maxWidth: '500px'
-        }}>
-          <h1 style={{ fontSize: '3rem', margin: '0 0 20px 0' }}>🎉 Game Complete!</h1>
-          <h2 style={{ color: '#667eea', margin: '0 0 30px 0' }}>🏆 Winner: {gameState.winner}</h2>
-          
-          <div style={{ margin: '30px 0' }}>
-            {Object.entries(gameState.scores)
-              .sort(([,a], [,b]) => b - a)
-              .map(([player, score], index) => (
-                <div key={player} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '10px',
-                  margin: '5px 0',
-                  borderRadius: '8px',
-                  background: player === gameState.winner ? '#d1fae5' : '#f8fafc'
-                }}>
-                  <span>#{index + 1} {player}</span>
-                  <span>{score} pts</span>
-                </div>
-              ))}
+      <div className="gb-shell gb-center">
+        <div className="gb-overlay-card gb-winner-card">
+          <div className="gb-winner-trophy">🏆</div>
+          <h1 className="gb-winner-title">Game Over!</h1>
+          <div className="gb-winner-name">{gameState.winner} Wins!</div>
+          <div className="gb-final-scores">
+            {sortedScores.map(([player, score], i) => (
+              <div
+                key={player}
+                className={`gb-score-row ${player === gameState.winner ? 'gb-score-row--winner' : ''}`}
+              >
+                <span className="gb-score-rank">#{i + 1}</span>
+                <span className="gb-score-pname">{player}</span>
+                <span className="gb-score-pts">{score} pts</span>
+              </div>
+            ))}
           </div>
-          
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-            <button 
-              onClick={() => window.location.reload()}
-              style={{
-                background: '#10b981', color: 'white', border: 'none',
-                padding: '15px 25px', borderRadius: '10px', cursor: 'pointer'
-              }}
-            >
+          <div className="gb-btn-row">
+            <button className="gb-btn gb-btn-green" onClick={() => window.location.reload()}>
               🎮 Play Again
             </button>
-            <button 
-              onClick={() => window.location.href = '/'}
-              style={{
-                background: '#667eea', color: 'white', border: 'none',
-                padding: '15px 25px', borderRadius: '10px', cursor: 'pointer'
-              }}
-            >
+            <button className="gb-btn gb-btn-blue" onClick={() => { window.location.href = '/'; }}>
               🏠 Home
             </button>
           </div>
         </div>
+        <style jsx>{GB_STYLES}</style>
       </div>
     );
   }
 
+  // ── Main game ─────────────────────────────────────────────────────────────
   const gameInProgress = gameState.gameStarted && !gameState.winner;
   const showStartButton = Object.keys(gameState.players).length >= 1 && !gameState.isActive && !gameInProgress;
   const showWaitingBetweenRounds = gameInProgress && !gameState.isActive;
   const playerCount = Object.keys(gameState.players).length;
+  const timerPct = (gameState.timer / 30) * 100;
+  const timerColor = gameState.timer <= 10 ? '#ff4444' : gameState.timer <= 20 ? '#f59e0b' : '#00ff87';
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
-    }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', color: 'white', marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '3rem', margin: '0 0 15px 0' }}>⚽ A-Z Football Game</h1>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <span>Mode: {gameMode === 'icons' ? '🏆 Icons' : '⚡ Modern'}</span>
-            <span>Room: {roomId}</span>
-            <span>Status: {connectionStatus === 'connected' ? '🟢 Connected' : '🟡 Connecting'}</span>
+    <div className="gb-shell">
+
+      {/* ── DYK Fact Popup ── */}
+      {showFact && currentFact && (
+        <div className="gb-dyk-overlay" onClick={() => setShowFact(false)}>
+          <div className="gb-dyk-card" onClick={e => e.stopPropagation()}>
+            <div className="gb-dyk-badge">⚡ DID YOU KNOW?</div>
+            <div className="gb-dyk-player">{currentFact.player}</div>
+            <p className="gb-dyk-fact">{currentFact.fact}</p>
+            <button className="gb-btn gb-btn-green gb-dyk-close" onClick={() => setShowFact(false)}>
+              Got it →
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Letter Section */}
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '30px',
-          marginBottom: '20px',
-          textAlign: 'center'
-        }}>
-          <h2 style={{ fontSize: '4rem', color: '#667eea', margin: '0 0 20px 0' }}>
-            Letter: {gameState.currentLetter}
-          </h2>
-          
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', flexWrap: 'wrap', marginBottom: '20px' }}>
-            {Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ').map((letter, index) => (
-              <span key={letter} style={{
-                width: '30px', height: '30px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRadius: '5px', fontSize: '12px', fontWeight: 'bold',
-                background: index < gameState.currentLetterIndex ? '#10b981' :
-                           index === gameState.currentLetterIndex ? '#667eea' : '#f1f5f9',
-                color: index <= gameState.currentLetterIndex ? 'white' : '#94a3b8'
-              }}>
-                {letter}
-              </span>
-            ))}
+      <div className="gb-inner">
+
+        {/* ── Header ── */}
+        <header className="gb-header">
+          <div className="gb-header-left">
+            <span className="gb-logo">A–Z</span>
+            <span className="gb-logo-sub">Football</span>
           </div>
-          
-          {gameState.isActive && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
-              <div style={{
-                width: '80px', height: '80px', borderRadius: '50%',
-                background: isPaused ? '#f59e0b' : '#ef4444', color: 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '1.5rem', fontWeight: 'bold'
-              }}>
-                {isPaused ? '⏸' : `${gameState.timer}s`}
-              </div>
-              <div style={{ flex: 1, maxWidth: '300px', height: '10px', background: '#f1f5f9', borderRadius: '5px' }}>
-                <div style={{
-                  height: '100%',
-                  background: isPaused ? '#f59e0b' : '#10b981',
-                  width: `${(gameState.timer / 30) * 100}%`,
-                  borderRadius: '5px',
-                  transition: isPaused ? 'none' : 'width 1s linear'
-                }}></div>
-              </div>
-              <button
-                onClick={isPaused ? handleResumeGame : handlePauseGame}
-                title={isPaused ? 'Resume game' : 'Pause game'}
-                style={{
-                  padding: '8px 14px',
-                  background: isPaused ? '#10b981' : '#f59e0b',
-                  color: 'white', border: 'none', borderRadius: '8px',
-                  cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold',
-                  flexShrink: 0,
-                }}
-              >
-                {isPaused ? '▶ Resume' : '⏸'}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Input Section */}
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '20px'
-        }}>
-          {showStartButton && (
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <h3>🎮 Ready to Play!</h3>
-              <p>{playerCount} player{playerCount !== 1 ? 's' : ''} in room</p>
-              <button
-                onClick={handleStartGame}
-                disabled={connectionStatus !== 'connected'}
-                style={{
-                  padding: '15px 30px',
-                  background: connectionStatus === 'connected' ? '#10b981' : '#94a3b8',
-                  color: 'white', border: 'none', borderRadius: '10px',
-                  fontSize: '1.2rem', cursor: 'pointer', width: '100%', maxWidth: '300px'
-                }}
-              >
-                🚀 Start Game ({playerCount} players)
-              </button>
-            </div>
-          )}
-
-          {showWaitingBetweenRounds && (
-            <div style={{ textAlign: 'center', marginBottom: '20px', color: '#64748b' }}>
-              <h3>⏳ Next round starting soon...</h3>
-              <p>Letter {gameState.currentLetter} — Round {gameState.currentLetterIndex + 1}/26</p>
-            </div>
-          )}
-          
-          {gameState.isActive && isPaused && (
-            <div style={{
-              padding: '20px', borderRadius: '12px', marginBottom: '15px',
-              background: '#fef3c7', border: '2px solid #f59e0b',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#92400e' }}>
-                ⏸ Game Paused
-              </div>
-              <div style={{ color: '#78350f', marginTop: '4px' }}>
-                Paused by <strong>{pausedBy}</strong>
-              </div>
-              <button
-                onClick={handleResumeGame}
-                style={{
-                  marginTop: '12px', padding: '10px 24px',
-                  background: '#10b981', color: 'white', border: 'none',
-                  borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold'
-                }}
-              >
-                ▶ Resume
-              </button>
-            </div>
-          )}
-
-          {gameState.isActive && (
-            <div>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                <input
-                  type="text"
-                  value={playerInput}
-                  onChange={(e) => setPlayerInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !isPaused && handleSubmitAnswer()}
-                  placeholder={`Enter player starting with ${gameState.currentLetter}...`}
-                  disabled={submitted || isPaused}
-                  style={{
-                    flex: 1, padding: '15px', border: '2px solid #e2e8f0',
-                    borderRadius: '10px', fontSize: '1.1rem',
-                    background: submitted ? '#f0fdf4' : isPaused ? '#fef9c3' : 'white'
-                  }}
-                />
-                <button
-                  onClick={handleSubmitAnswer}
-                  disabled={submitted || !playerInput.trim() || isPaused}
-                  style={{
-                    padding: '15px 25px',
-                    background: submitted ? '#10b981' : (isPaused || !playerInput.trim() ? '#94a3b8' : '#667eea'),
-                    color: 'white', border: 'none', borderRadius: '10px',
-                    cursor: submitted || isPaused ? 'not-allowed' : 'pointer', minWidth: '100px'
-                  }}
-                >
-                  {submitted ? '✅ Sent' : isPaused ? '⏸' : 'Submit'}
-                </button>
-              </div>
-              <div style={{ textAlign: 'center', color: '#64748b' }}>
-                🎯 Letter {gameState.currentLetter} = {LETTER_SCORES[gameState.currentLetter]} points
-              </div>
-            </div>
-          )}
-          
-          {message && (
-            <div style={{
-              padding: '15px', borderRadius: '10px', marginTop: '15px',
-              background: message.includes('✅') ? '#d1fae5' : 
-                         message.includes('❌') ? '#fecaca' : '#dbeafe',
-              color: message.includes('✅') ? '#065f46' : 
-                     message.includes('❌') ? '#7f1d1d' : '#1e40af',
-              fontWeight: 'bold'
-            }}>
-              {message}
-            </div>
-          )}
-        </div>
-
-        {/* Players Section */}
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '20px'
-        }}>
-          <h3>👥 Players ({playerCount})</h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '15px'
-          }}>
-            {Object.entries(gameState.players).map(([name]) => (
-              <div key={name} style={{
-                padding: '15px',
-                borderRadius: '10px',
-                background: name === playerName ? '#dbeafe' : '#f8fafc',
-                border: `2px solid ${name === playerName ? '#667eea' : '#e2e8f0'}`
-              }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                  {name} {name === playerName && '(YOU)'}
-                </div>
-                <div style={{ color: '#667eea', fontWeight: 'bold', marginBottom: '5px' }}>
-                  {gameState.scores[name] || 0} points
-                </div>
-                <div style={{ fontSize: '0.9rem', color: '#64748b' }}>
-                  {gameState.roundAnswers[name] ? 
-                    `✅ ${gameState.roundAnswers[name].answer}` : 
-                    (gameState.isActive ? '⏳ Thinking...' : '⏸️ Ready')
-                  }
-                </div>
-              </div>
-            ))}
+          <div className="gb-header-chips">
+            <span className="gb-chip">{gameMode === 'icons' ? '🏆 Icons' : '⚡ Modern'}</span>
+            <span className="gb-chip gb-chip--room">🏠 {roomId}</span>
+            <span className={`gb-chip gb-chip--status ${connectionStatus === 'connected' ? 'gb-chip--ok' : 'gb-chip--warn'}`}>
+              {connectionStatus === 'connected' ? '● Live' : '◌ …'}
+            </span>
           </div>
-        </div>
-
-        {/* Round Results */}
-        {Object.keys(gameState.roundAnswers).length > 0 && !gameState.isActive && (
-          <div style={{
-            background: 'white',
-            borderRadius: '20px',
-            padding: '20px',
-            marginBottom: '20px'
-          }}>
-            <h3>🏁 Round Results - Letter {gameState.currentLetter}</h3>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '10px'
-            }}>
-              {Object.entries(gameState.roundAnswers).map(([player, result]) => (
-                <div key={player} style={{
-                  padding: '15px',
-                  borderRadius: '10px',
-                  textAlign: 'center',
-                  background: result.isValid ? '#d1fae5' : '#fecaca',
-                  border: `2px solid ${result.isValid ? '#10b981' : '#ef4444'}`
-                }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>{player}</div>
-                  <div style={{ marginBottom: '5px' }}>{result.answer || 'No answer'}</div>
-                  <div style={{ fontWeight: 'bold', color: result.isValid ? '#059669' : '#dc2626' }}>
-                    {result.isValid ? `+${result.points} pts` : '0 pts'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Game Stats */}
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '20px'
-        }}>
-          <h4>📊 Game Stats</h4>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-            gap: '15px',
-            textAlign: 'center'
-          }}>
-            <div>
-              <div style={{ fontSize: '2rem' }}>👥</div>
-              <div style={{ fontWeight: 'bold' }}>{playerCount}</div>
-              <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Players</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem' }}>🎯</div>
-              <div style={{ fontWeight: 'bold' }}>{gameState.currentLetterIndex + 1}/26</div>
-              <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Letters</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem' }}>⚽</div>
-              <div style={{ fontWeight: 'bold' }}>{gameState.usedPlayers?.length || 0}</div>
-              <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Used</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem' }}>📈</div>
-              <div style={{ fontWeight: 'bold' }}>{Math.round(((gameState.currentLetterIndex + 1) / 26) * 100)}%</div>
-              <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Complete</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Used Players */}
-        {gameState.usedPlayers && gameState.usedPlayers.length > 0 && (
-          <div style={{
-            background: 'white',
-            borderRadius: '20px',
-            padding: '20px',
-            marginBottom: '20px'
-          }}>
-            <h4>⚽ Used Players ({gameState.usedPlayers.length})</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {gameState.usedPlayers.slice(-10).map((player, index) => (
-                <span key={index} style={{
-                  background: '#f1f5f9',
-                  padding: '5px 10px',
-                  borderRadius: '15px',
-                  fontSize: '0.9rem',
-                  color: '#64748b'
-                }}>
-                  {player}
-                </span>
-              ))}
-              {gameState.usedPlayers.length > 10 && (
-                <span style={{
-                  background: '#667eea',
-                  color: 'white',
-                  padding: '5px 10px',
-                  borderRadius: '15px',
-                  fontSize: '0.9rem'
-                }}>
-                  +{gameState.usedPlayers.length - 10} more...
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Controls */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <button 
+          <div className="gb-header-actions">
+            <button
+              className="gb-icon-btn"
+              title="Copy share link"
               onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 setMessage('📋 Link copied!');
                 setTimeout(() => setMessage(''), 3000);
               }}
-              style={{
-                padding: '12px 20px',
-                background: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer'
-              }}
-            >
-              🔗 Share
-            </button>
-            <button 
-              onClick={() => window.location.reload()}
-              style={{
-                padding: '12px 20px',
-                background: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer'
-              }}
-            >
-              🔄 Refresh
-            </button>
-            <button 
-              onClick={() => window.location.href = '/'}
-              style={{
-                padding: '12px 20px',
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer'
-              }}
-            >
-              🏠 Home
-            </button>
+            >🔗</button>
+            <button className="gb-icon-btn" title="Home" onClick={() => { window.location.href = '/'; }}>🏠</button>
           </div>
-        </div>
-      </div>
+        </header>
 
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+        {/* ── Letter + Timer + Progress ── */}
+        <section className="gb-letter-section">
+          {/* Alphabet progress */}
+          <div className="gb-alpha-strip">
+            {Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ').map((l, i) => (
+              <span
+                key={l}
+                className={`gb-alpha-tile ${i < gameState.currentLetterIndex ? 'gb-alpha-done' : i === gameState.currentLetterIndex ? 'gb-alpha-current' : ''}`}
+              >{l}</span>
+            ))}
+          </div>
+
+          {/* Big letter */}
+          <div className="gb-big-letter-wrap">
+            <div className={`gb-big-letter ${gameState.isActive ? 'gb-big-letter--active' : ''}`}>
+              {gameState.currentLetter}
+            </div>
+            <div className="gb-letter-score-badge">
+              {LETTER_SCORES[gameState.currentLetter]} pts
+            </div>
+          </div>
+
+          {/* Timer row */}
+          {gameState.isActive && (
+            <div className="gb-timer-row">
+              <div
+                className="gb-timer-circle"
+                style={{ background: isPaused ? 'rgba(245,158,11,0.15)' : `rgba(${gameState.timer <= 10 ? '255,68,68' : '0,255,135'},0.1)`, borderColor: isPaused ? '#f59e0b' : timerColor, color: isPaused ? '#f59e0b' : timerColor }}
+              >
+                {isPaused ? '⏸' : `${gameState.timer}`}
+              </div>
+              <div className="gb-timer-bar-wrap">
+                <div
+                  className="gb-timer-bar-fill"
+                  style={{
+                    width: `${timerPct}%`,
+                    background: isPaused ? '#f59e0b' : timerColor,
+                    transition: isPaused ? 'none' : 'width 1s linear',
+                    boxShadow: isPaused ? 'none' : `0 0 8px ${timerColor}60`,
+                  }}
+                />
+              </div>
+              <button
+                className={`gb-pause-btn ${isPaused ? 'gb-pause-btn--resume' : ''}`}
+                onClick={isPaused ? handleResumeGame : handlePauseGame}
+                title={isPaused ? 'Resume' : 'Pause'}
+              >
+                {isPaused ? '▶ Resume' : '⏸'}
+              </button>
+            </div>
+          )}
+
+          {/* Paused banner */}
+          {gameState.isActive && isPaused && (
+            <div className="gb-paused-banner">
+              ⏸ Paused by <strong>{pausedBy}</strong>
+              <button className="gb-btn gb-btn-green gb-paused-resume" onClick={handleResumeGame}>▶ Resume</button>
+            </div>
+          )}
+        </section>
+
+        {/* ── Input / Start / Waiting ── */}
+        <section className="gb-input-section">
+          {showStartButton && (
+            <div className="gb-start-wrap">
+              <div className="gb-start-title">⚽ {playerCount} Player{playerCount !== 1 ? 's' : ''} Ready</div>
+              <button
+                className="gb-btn gb-btn-green gb-start-btn"
+                onClick={handleStartGame}
+                disabled={connectionStatus !== 'connected'}
+              >
+                🚀 Kick Off!
+              </button>
+            </div>
+          )}
+
+          {showWaitingBetweenRounds && !showFact && (
+            <div className="gb-waiting">
+              <span className="gb-waiting-dot" />
+              Next round starting… ({gameState.currentLetterIndex + 1}/26)
+            </div>
+          )}
+
+          {gameState.isActive && (
+            <div className="gb-answer-row">
+              <input
+                type="text"
+                className={`gb-answer-input ${submitted ? 'gb-answer-input--sent' : isPaused ? 'gb-answer-input--paused' : ''}`}
+                value={playerInput}
+                onChange={e => setPlayerInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !isPaused && handleSubmitAnswer()}
+                placeholder={`Player starting with ${gameState.currentLetter}…`}
+                disabled={submitted || isPaused}
+                autoComplete="off"
+                autoFocus
+              />
+              <button
+                className={`gb-btn ${submitted ? 'gb-btn-sent' : isPaused ? 'gb-btn-disabled' : 'gb-btn-green'} gb-submit-btn`}
+                onClick={handleSubmitAnswer}
+                disabled={submitted || !playerInput.trim() || isPaused}
+              >
+                {submitted ? '✅ Sent' : isPaused ? '⏸' : 'Submit →'}
+              </button>
+            </div>
+          )}
+
+          {message && (
+            <div className={`gb-message ${message.includes('✅') ? 'gb-msg-ok' : message.includes('❌') ? 'gb-msg-err' : 'gb-msg-info'}`}>
+              {message}
+            </div>
+          )}
+        </section>
+
+        {/* ── Players ── */}
+        <section className="gb-section">
+          <h3 className="gb-section-title">👥 Players <span className="gb-count">{playerCount}</span></h3>
+          <div className="gb-players-grid">
+            {Object.entries(gameState.players).map(([name]) => {
+              const ans = gameState.roundAnswers[name];
+              const isYou = name === playerName;
+              const rank = Object.entries(gameState.scores).sort(([, a], [, b]) => b - a).findIndex(([n]) => n === name) + 1;
+              return (
+                <div key={name} className={`gb-player-card ${isYou ? 'gb-player-card--you' : ''}`}>
+                  <div className="gb-player-top">
+                    <div className="gb-player-rank">#{rank}</div>
+                    <div className="gb-player-name">{name}{isYou && <span className="gb-you-badge">YOU</span>}</div>
+                    <div className="gb-player-pts">{gameState.scores[name] || 0}<span>pts</span></div>
+                  </div>
+                  <div className={`gb-player-status ${ans ? (ans.isValid ? 'gb-status-ok' : 'gb-status-err') : ''}`}>
+                    {ans
+                      ? `${ans.isValid ? '✅' : '❌'} ${ans.answer}`
+                      : gameState.isActive ? '⏳ Thinking…' : '— Ready'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── Round Results ── */}
+        {Object.keys(gameState.roundAnswers).length > 0 && !gameState.isActive && (
+          <section className="gb-section">
+            <h3 className="gb-section-title">🏁 Round Results — <span className="gb-accent">{gameState.currentLetter}</span></h3>
+            <div className="gb-results-grid">
+              {Object.entries(gameState.roundAnswers).map(([player, result]) => (
+                <div key={player} className={`gb-result-card ${result.isValid ? 'gb-result-card--ok' : 'gb-result-card--err'}`}>
+                  <div className="gb-result-player">{player}</div>
+                  <div className="gb-result-answer">{result.answer || '—'}</div>
+                  <div className="gb-result-pts">
+                    {result.isValid ? `+${result.points} pts` : '✗ invalid'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Stats Bar ── */}
+        <section className="gb-stats-bar">
+          <div className="gb-stat-item"><span className="gb-stat-val">{playerCount}</span><span className="gb-stat-lbl">Players</span></div>
+          <div className="gb-stat-item"><span className="gb-stat-val">{gameState.currentLetterIndex + 1}/26</span><span className="gb-stat-lbl">Letter</span></div>
+          <div className="gb-stat-item"><span className="gb-stat-val">{gameState.usedPlayers?.length || 0}</span><span className="gb-stat-lbl">Named</span></div>
+          <div className="gb-stat-item"><span className="gb-stat-val">{Math.round(((gameState.currentLetterIndex + 1) / 26) * 100)}%</span><span className="gb-stat-lbl">Done</span></div>
+        </section>
+
+        {/* ── Used Players ── */}
+        {gameState.usedPlayers && gameState.usedPlayers.length > 0 && (
+          <section className="gb-section">
+            <h3 className="gb-section-title">⚽ Named Players <span className="gb-count">{gameState.usedPlayers.length}</span></h3>
+            <div className="gb-tags">
+              {gameState.usedPlayers.slice(-15).map((p, i) => (
+                <span className="gb-tag" key={i}>{p}</span>
+              ))}
+              {gameState.usedPlayers.length > 15 && (
+                <span className="gb-tag gb-tag--more">+{gameState.usedPlayers.length - 15} more</span>
+              )}
+            </div>
+          </section>
+        )}
+
+      </div>
+      <style jsx>{GB_STYLES}</style>
     </div>
   );
 };
