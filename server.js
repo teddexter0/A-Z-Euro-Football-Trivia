@@ -67,7 +67,7 @@ app.prepare().then(() => {
 
     socket.emit('connection-confirmed', { status: 'connected', id: socket.id });
 
-    socket.on('join-room', ({ roomId, playerName }) => {
+    socket.on('join-room', ({ roomId, playerName, gameMode }) => {
       try {
         if (!gameRooms.has(roomId)) {
           gameRooms.set(roomId, {
@@ -81,7 +81,7 @@ app.prepare().then(() => {
             timer: 30,
             isActive: false,
             gameStarted: false,
-            gameMode: 'modern',
+            gameMode: gameMode || 'football-modern',
             winner: null,
             timerInterval: null,
             isPaused: false,

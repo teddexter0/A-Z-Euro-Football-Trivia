@@ -724,6 +724,123 @@ const FOOTBALL_FACTS = [
   { player: 'Achraf Hakimi', fact: 'Hakimi was born in Madrid but chose to represent Morocco — and led his country to the World Cup semi-final in 2022, the best-ever performance by an African nation.' },
 ];
 
+// ─── Mode-specific DYK Facts ─────────────────────────────────────────────────
+
+const NBA_FACTS = [
+  { player: 'Michael Jordan', fact: 'Jordan went 6-for-6 in NBA Finals, never losing a series he reached — and won Finals MVP all six times.' },
+  { player: 'LeBron James', fact: 'LeBron is the only player in NBA history to be the all-time leading scorer, rebounder, and assister among Finals MVPs.' },
+  { player: 'Kareem Abdul-Jabbar', fact: 'Kareem\'s sky hook is considered the most unstoppable shot in NBA history — he scored 38,387 career points, a record that stood for nearly 40 years.' },
+  { player: 'Wilt Chamberlain', fact: 'Wilt once scored 100 points in a single game (March 2, 1962). He also averaged 50.4 points per game for an entire season.' },
+  { player: 'Magic Johnson', fact: 'Magic Johnson was a 6\'9" point guard who once started at center in the NBA Finals due to injury — and won Finals MVP.' },
+  { player: 'Shaquille O\'Neal', fact: 'Shaq was so dominant the NBA changed its rules about defensive three-seconds specifically because of him — known as the "Hack-a-Shaq" era.' },
+  { player: 'Kobe Bryant', fact: 'Kobe scored 81 points in a single game in 2006 — the second-highest single-game total in NBA history behind Wilt\'s 100.' },
+  { player: 'Stephen Curry', fact: 'Steph Curry became the first unanimous MVP in NBA history (2016). He revolutionized basketball by making the 3-pointer the game\'s most valuable shot.' },
+  { player: 'Larry Bird', fact: 'Bird won 3 consecutive MVP awards (1984–86) and led the Celtics to 3 championships while being the gold standard for trash-talking in NBA history.' },
+  { player: 'Bill Russell', fact: 'Bill Russell won 11 NBA championships in 13 seasons — a record that will almost certainly never be broken.' },
+  { player: 'Tim Duncan', fact: 'Tim Duncan was so consistent he was nicknamed "The Big Fundamental." He\'s the only player to make the All-NBA and All-Defensive teams in 13 consecutive seasons.' },
+  { player: 'Kevin Durant', fact: 'KD won back-to-back Finals MVPs with the Warriors in 2017 and 2018 — averaging 35.2 and 28.8 points per game respectively.' },
+  { player: 'Nikola Jokić', fact: 'Jokić became the first center to win three MVP awards since the 1980s, and led Denver to their first-ever NBA title in 2023.' },
+  { player: 'Giannis Antetokounmpo', fact: 'Giannis turned down a supermax extension from the Bucks in 2021 before winning the championship that summer — the first Finals MVP of his career.' },
+  { player: 'Russell Westbrook', fact: 'Westbrook holds the all-time record for most triple-doubles in NBA history with over 200 — breaking Oscar Robertson\'s record that stood since the 1960s.' },
+  { player: 'Hakeem Olajuwon', fact: 'Hakeem "The Dream" Olajuwon once gave Michael Jordan a lesson in post moves during the offseason. Jordan then went on his "Dream Shake" tear the following year.' },
+  { player: 'Charles Barkley', fact: 'Barkley was the only player selected to the 50 Greatest Players list who never won an NBA championship. He called it "the most embarrassing thing in my life."' },
+  { player: 'Allen Iverson', fact: 'Iverson was the shortest MVP in NBA history at 6\'0". His crossover dribble was so effective the NBA tried to ban it — calling it a carry (and failed).' },
+  { player: 'Dirk Nowitzki', fact: 'Dirk\'s one-legged fadeaway became one of the most distinctive shots in NBA history. He was the first European player to win Finals MVP.' },
+  { player: 'Luka Dončić', fact: 'Luka became the youngest player to score 40+ points in a playoff game and is already in the all-time top 10 for points, assists, and rebounds per game in playoff history.' },
+];
+
+const WWE_FACTS = [
+  { player: 'Hulk Hogan', fact: 'Hulk Hogan main-evented the first-ever WrestleMania in 1985 and is credited with turning professional wrestling into a global entertainment phenomenon.' },
+  { player: 'Stone Cold Steve Austin', fact: 'Austin\'s "What?" catchphrase was so infectious it went viral before "viral" was a mainstream word — fans still chant it at every live event today.' },
+  { player: 'The Rock', fact: 'Dwayne "The Rock" Johnson went from WWE Champion to the world\'s highest-paid actor. He is the first professional wrestler to earn over $100 million in a single year from entertainment.' },
+  { player: 'The Undertaker', fact: 'The Undertaker\'s WrestleMania streak stood at 21-0 before Brock Lesnar ended it. WWE kept the streak loss secret so well that half the arena was reportedly in tears of shock.' },
+  { player: 'John Cena', fact: 'John Cena has granted more Make-A-Wish Foundation wishes than anyone else in history — over 650 wishes granted, a record no one else is close to breaking.' },
+  { player: 'Shawn Michaels', fact: 'HBK was the first man to win WWE\'s Royal Rumble from the #1 entry, eliminating all 29 other men in 1995 — considered one of the greatest Royal Rumble performances ever.' },
+  { player: 'Bret Hart', fact: 'Bret "The Hitman" Hart is the only person to have won the WWF Championship, WCW Championship, and wrestled in both promotions in a main event.' },
+  { player: 'Triple H', fact: 'Triple H holds the record for most reigns as World Heavyweight Champion at 13. He is now the executive running WWE\'s creative operations as Chief Content Officer.' },
+  { player: 'Roman Reigns', fact: 'Roman Reigns\' "Tribal Chief" character held the Universal/WWE Championship for over 1,300 days — the longest combined reign in the modern era.' },
+  { player: 'CM Punk', fact: 'CM Punk\'s 2011 "pipe bomb" promo is widely considered the most realistic and career-defining promo in WWE history — it briefly blurred the line between fiction and reality.' },
+  { player: 'Randy Savage', fact: 'Macho Man Randy Savage is famous for the original Miss Elizabeth storyline, which pulled in some of the highest buyrates in wrestling history when they reunited at WrestleMania VII.' },
+  { player: 'André the Giant', fact: 'André the Giant was reportedly impossible to knock unconscious from anesthesia due to his size — requiring doctors to calculate doses by trial during actual surgeries.' },
+  { player: 'Becky Lynch', fact: 'Becky Lynch held both Raw and SmackDown Women\'s Championships simultaneously after WrestleMania 35 — the first woman to do so in WWE history.' },
+  { player: 'Sasha Banks', fact: 'Sasha Banks is a five-time WWE Women\'s Champion and was the first Black woman to headline a main roster pay-per-view event in WWE.' },
+  { player: 'Eddie Guerrero', fact: 'Eddie Guerrero\'s motto "Lie, Cheat and Steal" was so beloved by fans that when he won the WWE Championship in 2004, Madison Square Garden gave him a standing ovation.' },
+];
+
+const MUSIC_FACTS = [
+  { player: 'Michael Jackson', fact: 'Thriller is the best-selling album of all time with over 70 million copies sold. The 14-minute music video cost $500,000 — an unprecedented amount in 1983.' },
+  { player: 'Madonna', fact: 'Madonna is the best-selling female recording artist of all time with over 300 million records sold. She holds the record for highest-grossing concert tour for a female artist.' },
+  { player: 'The Beatles', fact: 'The Beatles hold the record for most number-one hits on the Billboard Hot 100 with 20. They once occupied all top 5 spots simultaneously in 1964.' },
+  { player: 'Elvis Presley', fact: 'Elvis Presley is the second best-selling music artist in history with over 600 million records sold. He never performed outside North America despite massive international fame.' },
+  { player: 'Taylor Swift', fact: 'Taylor Swift\'s Eras Tour became the first concert tour to surpass $1 billion in revenue. She is also the first artist to have 5 albums reach 1 billion streams on Spotify simultaneously.' },
+  { player: 'Beyoncé', fact: 'Beyoncé holds the record for most Grammy Awards won by any artist (32), surpassing Georg Solti\'s previous record of 31 set over a career spanning decades.' },
+  { player: 'Tupac Shakur', fact: 'Tupac has sold more records posthumously than during his lifetime — releasing over 6 studio albums and 10+ compilations after his death in 1996.' },
+  { player: 'The Notorious B.I.G.', fact: 'Biggie released only 2 studio albums before his death, yet is consistently ranked among the greatest rappers of all time by Rolling Stone and music critics worldwide.' },
+  { player: 'Drake', fact: 'Drake holds the record for most entries on the Billboard Hot 100 by a single artist, surpassing even the Beatles with over 200 charted songs.' },
+  { player: 'Kendrick Lamar', fact: 'Kendrick Lamar became the first rapper to win the Pulitzer Prize for Music in 2018 for his album DAMN. He is the only rapper to receive this honor.' },
+  { player: 'Freddie Mercury', fact: 'Freddie Mercury\'s vocal range spanned nearly four octaves. He could sing notes that most trained classical singers cannot reach, yet never took formal vocal training.' },
+  { player: 'David Bowie', fact: 'Bowie changed his name from David Jones to avoid confusion with Davy Jones of The Monkees. He also had heterochromia — his differently-colored eyes were from a pupil injury.' },
+  { player: 'Eminem', fact: 'Eminem memorized the dictionary as a child to improve his rap vocabulary. He is the best-selling rap artist of all time with over 220 million records sold.' },
+  { player: 'Jay-Z', fact: 'Jay-Z reportedly never writes down his lyrics — memorizing everything as he goes. He co-founded Tidal, the artist-owned streaming service, to give artists more control.' },
+  { player: 'Rihanna', fact: 'Rihanna\'s Fenty Beauty line made more money in its first 40 days than Kylie Cosmetics did in its entire first year — becoming a $600 million brand almost overnight.' },
+  { player: 'Bad Bunny', fact: 'Bad Bunny has been Spotify\'s most-streamed artist globally 3 years in a row (2020, 2021, 2022) — the first time any solo artist has achieved this three consecutive times.' },
+  { player: 'BTS', fact: 'BTS is estimated to contribute $4.9 billion to the South Korean economy annually — roughly equivalent to having 26 mid-sized companies operating simultaneously.' },
+  { player: 'Daft Punk', fact: 'Daft Punk wore robot helmets for nearly 30 years of their career without ever revealing their faces in public — one of the greatest maintained mysteries in pop music.' },
+  { player: 'Burna Boy', fact: 'Burna Boy\'s Grammy win for Best Global Music Album in 2021 prompted Nigeria\'s President to tweet his congratulations — a rare intersection of music and national pride.' },
+  { player: 'Adele', fact: 'Adele\'s album 21 spent 24 consecutive weeks at #1 in the UK and 24 weeks at #1 in the US — one of the longest chart-topping runs in music history.' },
+];
+
+const F1_FACTS = [
+  { player: 'Lewis Hamilton', fact: 'Hamilton holds the records for most wins (103+), most pole positions (100+), and most podiums in F1 history. He equaled Schumacher\'s 7 titles in 2020.' },
+  { player: 'Ayrton Senna', fact: 'Senna holds the highest win percentage (25%) of any driver with 30+ starts in F1 history. Many engineers who worked with him called him the fastest driver who ever lived.' },
+  { player: 'Michael Schumacher', fact: 'Schumacher once won 13 races in a single season (2004) — a feat that stood as the record until Hamilton in 2020. His 72 career fastest laps is also an all-time record.' },
+  { player: 'Max Verstappen', fact: 'Verstappen won 19 races in the 2023 season — the most wins in a single season in F1 history, surpassing the previous record of 15 set by Sebastian Vettel.' },
+  { player: 'Sebastian Vettel', fact: 'Vettel won 4 consecutive World Championships from 2010-2013 and was the youngest driver to win the title when he first won aged 23.' },
+  { player: 'Niki Lauda', fact: 'Niki Lauda survived a near-fatal crash at the 1976 German GP with severe burns, then returned to racing just 6 weeks later — losing the title by one point that very season.' },
+  { player: 'Alain Prost', fact: 'Prost\'s precise, calculated driving style earned him the nickname "The Professor." He and Senna\'s rivalry is considered the greatest in F1 history.' },
+  { player: 'Fernando Alonso', fact: 'Alonso is considered one of the most complete drivers in F1 history. At age 40+ he was still regularly outperforming cars that should have finished much lower.' },
+  { player: 'Kimi Räikkönen', fact: 'Räikkönen is the most-capped driver in F1 history (349 starts) and holds the record for the longest gap between championship wins for a constructor (Ferrari, 2007 after a 16-year drought).' },
+  { player: 'Charles Leclerc', fact: 'Leclerc is so talented he signed a multi-year Ferrari contract before winning a single race. He won at Monza (Ferrari\'s home track) in just his second season — ending a 9-year Ferrari drought there.' },
+  { player: 'Lando Norris', fact: 'Lando Norris\'s 2024 Dutch GP win ended a multi-year drought for McLaren and made him the youngest British driver to win a grand prix in the modern era.' },
+  { player: 'Jackie Stewart', fact: 'Jackie Stewart campaigned tirelessly for driver safety in the 1970s when F1 was genuinely life-threatening. His advocacy directly led to the Armco barriers, HANS devices, and safer circuits we have today.' },
+  { player: 'Jim Clark', fact: 'Jim Clark won the 1963 championship by winning 7 out of 10 races — a dominance ratio not seen again until Schumacher and Vettel\'s peak years.' },
+  { player: 'Damon Hill', fact: 'Damon Hill is the only son of a World Champion to also win the title. His father Graham Hill won in 1962 and 1968; Damon won in 1996.' },
+  { player: 'Jenson Button', fact: 'Jenson Button\'s 2009 title was the most unlikely in years — he won 6 of the first 7 races with the Brawn GP team, a car designed in secret after Honda pulled out of F1.' },
+];
+
+const MOVIE_FACTS = [
+  { player: 'Tom Hanks', fact: 'Tom Hanks is the only actor to win back-to-back Best Actor Oscars (1993–94) since Spencer Tracy did it in 1937–38. He was also the first major star to play a gay character in a Hollywood film (Philadelphia, 1993).' },
+  { player: 'Meryl Streep', fact: 'Meryl Streep has been nominated for an Oscar 21 times — more than any other actor in history. She has won 3 times, also a record for acting categories.' },
+  { player: 'Marlon Brando', fact: 'Brando famously refused his Best Actor Oscar for The Godfather in 1973, sending Native American activist Sacheen Littlefeather to decline the award on stage.' },
+  { player: 'Audrey Hepburn', fact: 'Audrey Hepburn is one of only 16 people to achieve EGOT status (Emmy, Grammy, Oscar, Tony) and devoted her later life to UNICEF ambassador work in war-torn regions.' },
+  { player: 'Leonardo DiCaprio', fact: 'DiCaprio was nominated for the Oscar 6 times before winning for The Revenant (2016). He ate a real raw bison liver for the role — despite being a vegetarian at the time.' },
+  { player: 'Cate Blanchett', fact: 'Blanchett won Oscars in both Best Actress and Best Supporting Actress categories — making her one of only a handful of actors to achieve this double distinction.' },
+  { player: 'Heath Ledger', fact: 'Heath Ledger\'s Joker in The Dark Knight was so immersive that he locked himself in a hotel room for a month to prepare. He became the first posthumous acting Oscar winner in 35 years.' },
+  { player: 'Denzel Washington', fact: 'Denzel Washington is the first Black actor to win two Academy Awards — Best Supporting Actor (Glory, 1989) and Best Actor (Training Day, 2002).' },
+  { player: 'Katharine Hepburn', fact: 'Katharine Hepburn won 4 Best Actress Oscars — a record that still stands today. She was also famous for never attending the ceremony once, yet kept all 4 statues.' },
+  { player: 'Morgan Freeman', fact: 'Morgan Freeman was 52 years old before getting his first Best Actor nomination. His narrator voice is so distinctive that NASA considered using it for their public communications.' },
+  { player: 'Joaquin Phoenix', fact: 'Joaquin Phoenix lost 52 pounds to play the Joker — so much that crew members reportedly became genuinely concerned about his mental and physical health during production.' },
+  { player: 'Chadwick Boseman', fact: 'Chadwick Boseman filmed Black Panther, Avengers: Infinity War, and several other major projects while secretly battling stage 3 colon cancer — telling almost nobody on set.' },
+  { player: 'Daniel Day-Lewis', fact: 'Day-Lewis is the only actor to win three Best Actor Oscars. He famously stays in character for the entire duration of a film shoot, sometimes for years of preparation.' },
+  { player: 'Natalie Portman', fact: 'Natalie Portman began Harvard University the same year Star Wars Episode I came out, speaking 6 languages fluently. She has published peer-reviewed neuroscience research.' },
+  { player: 'Viola Davis', fact: 'Viola Davis is one of only 18 people to achieve EGOT status and was the first Black woman to win the Emmy, Tony, and Oscar in acting categories.' },
+];
+
+// Lookup facts by game type prefix
+const FACTS_BY_TYPE = {
+  football: FOOTBALL_FACTS,
+  nba: NBA_FACTS,
+  wwe: WWE_FACTS,
+  music: MUSIC_FACTS,
+  f1: F1_FACTS,
+  movies: MOVIE_FACTS,
+};
+
+function getFactsForMode(mode) {
+  const type = (mode || 'football').split('-')[0];
+  return FACTS_BY_TYPE[type] || FOOTBALL_FACTS;
+}
+
 // ─── GameBoard CSS ───────────────────────────────────────────────────────────
 const GB_STYLES = `
   /* ── Shell ──────────────────────────────────────── */
@@ -858,29 +975,36 @@ const GB_STYLES = `
 
   /* ── Header ──────────────────────────────────────── */
   .gb-header {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 0 20px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 0 16px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     flex-wrap: wrap;
+    row-gap: 8px;
   }
-  .gb-header-left { display: flex; align-items: baseline; gap: 8px; }
+  .gb-header-left { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .gb-logo {
-    font-size: 1.6rem; font-weight: 900;
+    font-size: 1.4rem; font-weight: 900;
     background: linear-gradient(135deg,#00ff87,#00d4ff);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
+    white-space: nowrap;
   }
   .gb-logo-sub {
-    font-size: 0.9rem; font-weight: 600; color: #6b7280;
-    text-transform: uppercase; letter-spacing: 0.1em;
+    font-size: 0.78rem; font-weight: 600; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    white-space: nowrap;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .gb-header-chips { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .gb-header-chips { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; min-width: 0; }
   .gb-chip {
-    font-size: 0.78rem; font-weight: 600;
+    font-size: 0.72rem; font-weight: 600;
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px; padding: 5px 12px; color: #9ba3b8;
+    border-radius: 16px; padding: 4px 10px; color: #9ba3b8;
+    white-space: nowrap;
   }
   .gb-chip--room { color: #e8eaf0; }
   .gb-chip--ok { color: #00ff87; border-color: rgba(0,255,135,0.3); background: rgba(0,255,135,0.08); }
@@ -923,8 +1047,10 @@ const GB_STYLES = `
     animation: gbPulse 1.5s ease-in-out infinite;
   }
   .gb-big-letter-wrap {
-    position: relative;
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 16px;
   }
   .gb-big-letter {
@@ -942,12 +1068,11 @@ const GB_STYLES = `
     animation: gbLetterGlow 2s ease-in-out infinite;
   }
   .gb-letter-score-badge {
-    position: absolute; top: 4px; right: -24px;
-    background: rgba(255,215,0,0.15);
-    border: 1px solid rgba(255,215,0,0.3);
-    color: #ffd700;
-    font-size: 0.75rem; font-weight: 800;
-    padding: 3px 8px; border-radius: 10px;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.25);
+    color: rgba(255,215,0,0.85);
+    font-size: 0.72rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 10px;
     white-space: nowrap;
   }
   .gb-timer-row {
@@ -1191,10 +1316,12 @@ const GB_STYLES = `
     .gb-answer-row { flex-direction: column; }
     .gb-submit-btn { width: 100%; }
     .gb-stats-bar { grid-template-columns: repeat(2, 1fr); }
-    .gb-header { justify-content: space-between; }
-    .gb-timer-row { gap: 10px; }
-    .gb-timer-bar-wrap { max-width: 160px; }
-    .gb-letter-score-badge { right: -10px; font-size: 0.65rem; }
+    .gb-header { justify-content: flex-start; }
+    .gb-header-chips { display: none; }  /* room + mode chips hidden on small screens — saves space */
+    .gb-header-actions { margin-left: auto; }
+    .gb-timer-row { gap: 8px; }
+    .gb-timer-bar-wrap { max-width: 140px; }
+    .gb-letter-score-badge { font-size: 0.65rem; }
   }
 `;
 
@@ -1224,7 +1351,7 @@ function getEntityLabel(gameMode) {
   return map[type] || 'Name';
 }
 
-const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
+const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
   const [gameState, setGameState] = useState({
@@ -1248,6 +1375,10 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [pausedBy, setPausedBy] = useState(null);
   
+  // liveGameMode starts from prop but syncs to server's room gameMode once snapshot arrives.
+  // This lets joiners (who have no mode in their URL) pick up the room's actual mode.
+  const [liveGameMode, setLiveGameMode] = useState(gameMode);
+
   const [showFact, setShowFact] = useState(false);
   const [currentFact, setCurrentFact] = useState(null);
 
@@ -1256,11 +1387,17 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
   const playerDatabaseRef = useRef([]);
   const usedFactIndicesRef = useRef([]);
 
-  // Strips diacritics and non-alpha characters — used for DB/Fuse comparison
+  // Strips diacritics / stylized chars — used for DB/Fuse comparison.
+  // Maps common artistic substitutions so "Ke$ha" → "kesha", etc.
   const normalizePlayerName = (name) => {
     return name
       .toLowerCase()
       .trim()
+      .replace(/\$/g, 's')   // Ke$ha → kesha
+      .replace(/\!/g, 'i')   // P!nk → pink
+      .replace(/\@/g, 'a')
+      .replace(/3/g, 'e')    // br3akthrough typos
+      .replace(/0/g, 'o')
       .replace(/[^a-z\s]/g, '')
       .replace(/\s+/g, ' ')
       .trim();
@@ -1301,7 +1438,8 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           setSocket(newSocket);
           setMessage('✅ Connected! Joining room...');
           
-          newSocket.emit('join-room', { roomId, playerName });
+          // Send gameMode so server stores it on room creation (creator's mode)
+          newSocket.emit('join-room', { roomId, playerName, gameMode });
         });
 
         newSocket.on('connection-confirmed', () => {
@@ -1331,6 +1469,11 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         newSocket.on('game-state-update', (state) => {
           console.log('🎮 Game state:', state);
           setGameState(prevState => ({ ...prevState, ...state }));
+          // Sync the live game mode from the server's room state.
+          // Critical for joiners who don't have ?mode= in their URL.
+          if (state.gameMode && state.gameMode !== liveGameMode) {
+            setLiveGameMode(state.gameMode);
+          }
         });
 
         newSocket.on('game-started', () => {
@@ -1379,8 +1522,6 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           } else {
             setMessage('⏰ Time up!');
           }
-          // Show a Did You Know fact during the inter-round pause
-          showRandomFact();
         });
 
         newSocket.on('game-complete', (data) => {
@@ -1431,11 +1572,11 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     const loadPlayers = async () => {
       try {
         setIsLoading(true);
-        console.log(`📊 Loading ${gameMode} players...`);
-        
+        console.log(`📊 Loading ${liveGameMode} players...`);
+
         // Pass the full compound mode string (e.g. "football-modern", "nba-legends", "music-hiphop-modern")
         // Backwards-compat: bare 'icons'/'modern'/'legacy' still work via the API route
-        const apiUrl = `/api/players/${gameMode}`;
+        const apiUrl = `/api/players/${liveGameMode}`;
         
         console.log('🔗 Fetching from:', apiUrl);
         const response = await fetch(apiUrl);
@@ -1458,7 +1599,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         const normalizedForFuse = data.map(name => normalizePlayerName(name));
 
         fuseRef.current = new Fuse(normalizedForFuse, {
-          threshold: 0.55,
+          threshold: 0.6,
           distance: 200,
           includeScore: true,
           minMatchCharLength: 3,
@@ -1475,7 +1616,23 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     };
 
     loadPlayers();
-  }, [gameMode]);
+  }, [liveGameMode]);
+
+  // Show a DYK fact once per calendar day per mode, on first game entry
+  useEffect(() => {
+    if (!isLoading) {
+      const today = new Date().toDateString();
+      const storageKey = `az_fact_${(liveGameMode || 'x').split('-')[0]}`;
+      try {
+        const lastDate = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+        if (lastDate !== today) {
+          showRandomFact(liveGameMode);
+          if (typeof window !== 'undefined') localStorage.setItem(storageKey, today);
+        }
+      } catch (_) { /* localStorage unavailable */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, liveGameMode]);
 
   const handleStartGame = () => {
     if (!socket || connectionStatus !== 'connected') {
@@ -1498,14 +1655,14 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
     socket.emit('resume-game', { roomId });
   };
 
-  // Show a random DYK fact between rounds (on round-complete)
-  const showRandomFact = () => {
-    if (FOOTBALL_FACTS.length === 0) return;
-    // Reset pool once all facts shown
-    if (usedFactIndicesRef.current.length >= FOOTBALL_FACTS.length) {
+  // Show a random DYK fact — uses facts for the active game mode
+  const showRandomFact = (mode) => {
+    const facts = getFactsForMode(mode || liveGameMode);
+    if (facts.length === 0) return;
+    if (usedFactIndicesRef.current.length >= facts.length) {
       usedFactIndicesRef.current = [];
     }
-    const available = FOOTBALL_FACTS.map((_, i) => i).filter(
+    const available = facts.map((_, i) => i).filter(
       i => !usedFactIndicesRef.current.includes(i)
     );
     const pick = available[Math.floor(Math.random() * available.length)];
@@ -1607,7 +1764,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           const matchedPlayer = playerDatabaseRef.current[result.refIndex];
           const normalizedMatched = result.item; // already normalized
 
-          if (result.score < 0.55) {
+          if (result.score < 0.6) {
             // Word-fuzzy guard: input must fuzzy-match at least one word in the
             // matched name (prefix OR Levenshtein within tolerance). This allows
             // typos like "Lewandowsky" → "Lewandowski" while still blocking
@@ -1661,7 +1818,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
           <div className="gb-spinner" />
           <div className="gb-spinner-text">
             <span className="gb-spinner-title">Loading Game…</span>
-            <span className="gb-spinner-sub">Fetching {getModeLabel(gameMode)} names…</span>
+            <span className="gb-spinner-sub">Fetching {getModeLabel(liveGameMode)} names…</span>
           </div>
         </div>
         <style jsx>{GB_STYLES}</style>
@@ -1752,10 +1909,10 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
         <header className="gb-header">
           <div className="gb-header-left">
             <span className="gb-logo">A–Z</span>
-            <span className="gb-logo-sub">{getModeLabel(gameMode)}</span>
+            <span className="gb-logo-sub">{getModeLabel(liveGameMode)}</span>
           </div>
           <div className="gb-header-chips">
-            <span className="gb-chip">{getModeLabel(gameMode)}</span>
+            <span className="gb-chip">{getModeLabel(liveGameMode)}</span>
             <span className="gb-chip gb-chip--room">🏠 {roomId}</span>
             <span className={`gb-chip gb-chip--status ${connectionStatus === 'connected' ? 'gb-chip--ok' : 'gb-chip--warn'}`}>
               {connectionStatus === 'connected' ? '● Live' : '◌ …'}
@@ -1866,7 +2023,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'modern' }) => {
                 value={playerInput}
                 onChange={e => setPlayerInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !isPaused && handleSubmitAnswer()}
-                placeholder={`${getEntityLabel(gameMode)} starting with ${gameState.currentLetter}…`}
+                placeholder={`${getEntityLabel(liveGameMode)} starting with ${gameState.currentLetter}…`}
                 disabled={submitted || isPaused}
                 autoComplete="off"
                 autoFocus
