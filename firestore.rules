@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: enforce 30-day cooldown on username changes ─────────────────
+    function isValidUserWrite(userId) {
+      let usernameIsBeingUpdated =
+        'username' in request.resource.data &&
+        request.resource.data.username != resource.data.username;
+      return !usernameIsBeingUpdated ||
+        (!('usernameLastChanged' in resource.data) ||
+         (request.time - resource.data.usernameLastChanged > duration.days(30)));
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── /users/{uid} ────────────────────────────────────────────────────────
+    // Each user can only read/write their own document.
+    match /users/{uid} {
+      allow read: if request.auth.uid == uid;
+      allow write: if request.auth.uid == uid && isValidUserWrite(uid);
+    }
+
+    // ── /usernames/{usernameLower} ───────────────────────────────────────────
+    // Used for uniqueness enforcement.
+    // Creation: authenticated, uid matches, doc must not already exist.
+    // Updates/deletes: Cloud Functions only (client denied).
+    match /usernames/{usernameLower} {
+      allow read:   if request.auth.uid != null;
+      allow create: if request.auth.uid != null
+                    && request.auth.uid == request.resource.data.uid
+                    && !exists(/databases/$(database)/documents/usernames/$(usernameLower));
+      allow update, delete: if false;
+    }
+
+    // ── /leaderboard/{uid} ──────────────────────────────────────────────────
+    // Any logged-in user can read; writes only from Cloud Functions.
+    match /leaderboard/{uid} {
+      allow read:  if request.auth.uid != null;
+      allow write: if request.auth == null;  // Cloud Functions (admin SDK bypasses rules)
+    }
+
+    // ── /friends/{uid}/friendsList/{friendUid} ───────────────────────────────
+    // Only the owning user can read/write their own friends list.
+    match /friends/{uid}/friendsList/{friendUid} {
+      allow read, write: if request.auth.uid == uid;
+    }
+
+    // ── /friendRequests/{requestId} ─────────────────────────────────────────
+    match /friendRequests/{requestId} {
+      // Sender or recipient can read
+      allow read: if request.auth.uid != null
+                  && (request.auth.uid == resource.data.from
+                   || request.auth.uid == resource.data.to);
+
+      // Only the 'from' user can create a request
+      allow create: if request.auth.uid != null
+                    && request.auth.uid == request.resource.data.from;
+
+      // Recipient can accept/decline; sender can cancel
+      allow update: if request.auth.uid != null
+                    && (
+                      (request.auth.uid == resource.data.to
+                       && request.resource.data.status in ['accepted', 'declined'])
+                      ||
+                      (request.auth.uid == resource.data.from
+                       && request.resource.data.status == 'cancelled')
+                    );
+    }
+
+    // ── /gameHistory/{gameId} ───────────────────────────────────────────────
+    // Any player in the game can read; writes only from Cloud Functions.
+    match /gameHistory/{gameId} {
+      allow read:  if request.auth.uid != null
+                   && request.auth.uid in resource.data.players;
+      allow write: if request.auth == null;
+    }
+  }
+}
