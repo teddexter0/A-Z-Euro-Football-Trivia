@@ -1,126 +1,151 @@
-# A-Z Football Game
+# A-Z Trivia Challenge
 
-A real-time multiplayer web game where players compete to name football players from A-Z, inspired by classic playground games but with modern web technology.
-
-## Game Overview
-
-Players take turns naming football players whose names start with consecutive letters of the alphabet. Think fast - you only have 30 seconds per letter!
-## Screenshots
+A real-time multiplayer A-Z trivia game. Name famous people from A to Z — beat the clock, outscore your mates. Six categories, one letter at a time.
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin: 2rem 0;">
-  <a href="assets/Screenshot1.png"><img src="assets/Screenshot1.png" alt="Screenshot 1" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
-  <a href="assets/Screenshot2.png"><img src="assets/Screenshot2.png" alt="Screenshot 2" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
-  <a href="assets/Screenshot3.png"><img src="assets/Screenshot3.png" alt="Screenshot 3" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
-  <a href="assets/Screenshot4.png"><img src="assets/Screenshot4.png" alt="Screenshot 4" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
-  <a href="assets/Screenshot5.png"><img src="assets/Screenshot5.png" alt="Screenshot 5" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"/></a>
+  <a href="assets/Screenshot1.png"><img src="assets/Screenshot1.png" alt="Home screen" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1);"/></a>
+  <a href="assets/Screenshot2.png"><img src="assets/Screenshot2.png" alt="Game board" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1);"/></a>
+  <a href="assets/Screenshot3.png"><img src="assets/Screenshot3.png" alt="Round results" style="width: 250px; border-radius: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1);"/></a>
 </div>
 
+---
+
+## Game Categories
+
+| Category | Modes | Database size |
+|----------|-------|---------------|
+| ⚽ Football | Icons (retired legends, pre-2015) · Modern (2015–present) | ~1,200 players |
+| 🏀 NBA | Legends (pre-2015) · Modern (2015–present) | ~900 players |
+| 🤼 WWE | All Eras · Golden · Attitude · Ruthless Aggression · PG Era · Modern | ~175 superstars |
+| 🎵 Music | 9 genres (Hip-Hop, Pop, Rock, R&B, EDM, Latin, Country, K-Pop, Afrobeats) × Classic/Modern | ~540 artists |
+| 🏎️ F1 | Legends (pre-2015) · Modern (2015–present) | ~324 drivers |
+| 🎬 Movies | Classic (pre-1990) · Modern (1990–now) | ~80 actors |
+
+---
 
 ## Features
 
-### Core Gameplay
-- **Real-time Multiplayer**: 2-6 players per game room
-- **Two Game Modes**: 
-  - Icons Mode (1990-2014): Legends like Messi, Henry, Zidane
-  - Modern Mode (2015+): Current stars like Mbappé, Haaland, Bellingham
-- **Smart Spell Checking**: Fuzzy matching handles minor spelling errors
-- **No Repeats**: Each player can only be used once per game
-- **Timer Pressure**: 30 seconds to think and type
+### Gameplay
+- **Real-time multiplayer** via Socket.io — share a room code, play instantly
+- **26 rounds**, one per letter of the alphabet (A → Z)
+- **30-second timer** per letter — buzzer ends the round
+- **No repeats** — each name can only be used once across all players
+- **Pause & resume** — any player can pause mid-round; the game saves its exact state and can be resumed any time (even days later)
 
-### Scoring System
-- **Scrabble-style Points**: Rare letters give more points
-  - Common letters (A, E, I, O, U): 1 point
-  - Medium letters (D, G, L, N, R, S, T): 2 points
-  - Harder letters (B, C, F, H, M, P, V, W, Y): 3 points
-  - Rare letters (J, K, Q, X, Z): 5-10 points
-- **Bonus Points**: Quick answers get time bonuses
+### Smart Answer Validation
+- **600+ nickname aliases** — CR7, Dinho, The Rock, The Undertaker, MJ, etc. all accepted
+- **Fuse.js fuzzy matching** — minor typos and accent-less spellings accepted
+- **Multi-word partial matching** — typing just a surname or first name can match
+- **Partial scoring** — very close but not exact spellings (e.g. "Viktor Osimen" for "Victor Osimhen") earn **half points** shown as ⚡ instead of ✅
+- **Stylised name normalisation** — `Ke$ha` and `Kesha`, `P!nk` and `Pink` both match
+- **Levenshtein guard** prevents false positives (won't match unrelated short words)
 
-### Technical Features
-- **Mobile Responsive**: Works perfectly on phones and tablets
-- **Real-time Sync**: Instant updates across all devices
-- **Player Database**: 1000+ football players with fuzzy search
-- **Room System**: Private games with shareable codes
+### Scoring
+Scrabble-style letter values — rare letters score more:
+
+| Points | Letters |
+|--------|---------|
+| 10 | Q, Z |
+| 8 | X |
+| 8 | J |
+| 4–5 | K, V, W, H, F, Y |
+| 2–3 | B, C, D, G, M, P |
+| 1 | A, E, I, L, N, O, R, S, T, U |
+
+Near-miss answers (fuzzy match) earn **½ the letter value**, rounded down.
+
+### Did You Know (DYK) Facts
+- Shows a random fact popup **once per day per category** on first game entry
+- Each category has its own curated fact pool (Football, NBA, WWE, Music, F1, Movies)
+- Non-repeating rotation — cycles through all facts before repeating
+- 100% offline — no API, no quota, hardcoded facts
+
+### Coming Soon (Firebase required)
+- **Unique usernames** — 3–20 chars, letters/numbers/underscores/hyphens, case-insensitive uniqueness enforced via Firestore
+- **Username change limit** — once every 30 days
+- **Leaderboard** — all-time points and wins, filterable by category
+- **Friends** — send friend requests by username, see friends' scores
+- **Game history** — persistent record of past games
+- **Google Sign-In** — one-click auth, profile photo used as avatar
+
+---
 
 ## Tech Stack
 
-- **Frontend**: Next.js, React, Tailwind CSS
-- **Backend**: Node.js, Socket.io
-- **Database**: JSON-based player database
-- **Search**: Fuse.js for fuzzy string matching
-- **Deployment**: Vercel-ready
+| Layer | Tech |
+|-------|------|
+| Frontend | Next.js 15 · React 19 |
+| Real-time | Socket.io 4.8.1 (custom Node.js server) |
+| Fuzzy matching | Fuse.js 7.1.0 + custom Levenshtein |
+| Player data | Local JSON files (no DB needed for gameplay) |
+| Styling | CSS-in-JSX (dark glassmorphism theme) |
+| Auth/Social | Firebase (Firestore + Auth) — pending setup |
+| Hosting | Koyeb (backend) · Vercel (frontend) |
 
-## Quick Start
+---
+
+## Environment Variables
+
+Set these on Koyeb (backend) — no `.env` file needed for the game itself. Required only when Firebase is connected:
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+```
+
+---
+
+## Firebase Setup
+
+See `FIREBASE_GEMINI_PROMPT.md` for the complete Gemini prompt that generates all Firebase config.
+
+Files already in the repo:
+- `firestore.rules` — security rules (username uniqueness, 30-day change lock, friend privacy)
+- `firestore.indexes.json` — composite indexes for leaderboard, friends, game history
+- `functions/index.js` — Cloud Functions: `onUserCreated`, `updateLeaderboard`, `cleanupUsername`
+- `firebase.json` — CLI config
+- `.firebaserc` — fill in your Firebase project ID, then run `firebase deploy --only firestore,functions`
+
+---
+
+## Running Locally
 
 ```bash
-# Clone the repository
-git clone https://github.com/teddexter0/A-Z-Euro-Football-Trivia
-cd az-football-game
-
-# Install dependencies
 npm install
-
-# Run development server
-npm run dev
-
-# Open http://localhost:3000
+npm run dev          # starts Next.js + Socket.io server together
 ```
 
-## How to Play
+Open `http://localhost:3000`. Create a room, share the room code with a mate (or open a second tab).
 
-1. **Create or Join Game**: Enter your name and create a new room or join with a code
-2. **Choose Mode**: Select Icons (legends) or Modern (current players)
-3. **Race Through A-Z**: Name players starting with each letter
-4. **Beat the Clock**: 30 seconds per letter - think fast!
-5. **Score Points**: Harder letters and quick answers = more points
-6. **Win the Game**: Player with most points by letter Z wins!
+---
 
-## Game Modes
+## Project Structure
 
-### Icons Mode (1990-2014)
-Play with football legends from the golden era:
-- Zinedine Zidane, Thierry Henry, Ronaldinho
-- Francesco Totti, Andrea Pirlo, Steven Gerrard
-- And many more legendary players
-
-### Modern Mode (2015+)
-Current football superstars:
-- Kylian Mbappé, Erling Haaland, Jude Bellingham
-- Pedri, Gavi, João Félix
-- Today's biggest names in football
-
-## Development
-
-### Project Structure
 ```
-az-football-game/
-├── pages/                 # Next.js pages
-├── components/            # React components
-├── lib/                   # Game logic and utilities
-├── data/                  # Player databases
-├── styles/                # CSS and styling
-└── public/                # Static assets
+├── components/
+│   └── GameBoard.js        # Main game UI + validation + Socket.io client
+├── data/
+│   └── players/
+│       ├── refined-database.json   # Football (icons + modern)
+│       ├── nba.json                # NBA (legends + modern, 30 teams)
+│       ├── wwe.json                # WWE (5 eras)
+│       ├── music.json              # Music (9 genres × classic/modern)
+│       ├── f1.json                 # F1 (11 teams × legends/modern)
+│       └── movies.json             # Movies (classic/modern)
+├── lib/
+│   └── fuzzyMatch.js       # Levenshtein + wordFuzzyMatch helpers
+├── pages/
+│   ├── index.js            # Home screen (category + mode selector)
+│   ├── game/[roomId].js    # Game room page
+│   ├── leaderboard.js      # Leaderboard (Firebase pending)
+│   ├── friends.js          # Friends (Firebase pending)
+│   └── api/players/[mode].js  # REST endpoint — serves player lists by mode
+├── server.js               # Socket.io game server
+├── firestore.rules
+├── firestore.indexes.json
+└── functions/index.js      # Cloud Functions
 ```
-
-### Key Components
-- `GameBoard.js`: Main game interface
-- `PlayerInput.js`: Handles player name input with validation
-- `ScoreBoard.js`: Real-time score tracking
-- `Timer.js`: Visual countdown timer
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Football player data compiled from various public sources
-- Inspired by classic playground alphabet games
-- Built with modern web technologies for seamless multiplayer experience

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 
 // ── Game type configs ─────────────────────────────────────────────────────────
 const GAME_TYPES = [
@@ -123,6 +124,16 @@ export default function Home() {
       </Head>
 
       <div className="home-container">
+
+        {/* Navigation */}
+        <nav className="top-nav">
+          <span className="nav-logo">A–Z</span>
+          <div className="nav-links">
+            <Link href="/" className="nav-link nav-link--active">🎮 Play</Link>
+            <Link href="/leaderboard" className="nav-link">🏆 Leaderboard</Link>
+            <Link href="/friends" className="nav-link">👥 Friends</Link>
+          </div>
+        </nav>
 
         {/* Animated pitch lines background */}
         <div className="pitch-overlay" aria-hidden="true">
@@ -333,6 +344,32 @@ export default function Home() {
       </div>
 
       <style jsx>{`
+        /* ── Top Nav ─────────────────────────────── */
+        .top-nav {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 14px 4px 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          margin-bottom: 0;
+          position: relative; z-index: 2;
+        }
+        .nav-logo {
+          font-size: 1.3rem; font-weight: 900;
+          background: linear-gradient(135deg,#00ff87,#00d4ff);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .nav-links { display: flex; gap: 6px; }
+        .nav-link {
+          padding: 7px 13px; border-radius: 20px; font-size: 0.83rem;
+          font-weight: 600; text-decoration: none; color: #9ba3b8;
+          border: 1px solid transparent; transition: all 0.2s;
+        }
+        .nav-link:hover { color: #e8eaf0; background: rgba(255,255,255,0.05); }
+        .nav-link--active {
+          color: #00ff87; border-color: rgba(0,255,135,0.25);
+          background: rgba(0,255,135,0.07);
+        }
+
         /* ── Root ────────────────────────────────── */
         .home-container {
           min-height: 100vh;
