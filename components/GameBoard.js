@@ -1243,8 +1243,9 @@ const GB_STYLES = `
     background: rgba(255,255,255,0.03);
     border-radius: 6px; padding: 5px 8px;
   }
-  .gb-status-ok { color: #00ff87; background: rgba(0,255,135,0.06); }
-  .gb-status-err { color: #ff6b6b; background: rgba(255,68,68,0.06); }
+  .gb-status-ok      { color: #00ff87; background: rgba(0,255,135,0.06); }
+  .gb-status-err     { color: #ff6b6b; background: rgba(255,68,68,0.06); }
+  .gb-status-partial { color: #f59e0b; background: rgba(245,158,11,0.06); }
 
   /* ── Round Results ───────────────────────────────── */
   .gb-results-grid {
@@ -1378,6 +1379,8 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
   // liveGameMode starts from prop but syncs to server's room gameMode once snapshot arrives.
   // This lets joiners (who have no mode in their URL) pick up the room's actual mode.
   const [liveGameMode, setLiveGameMode] = useState(gameMode);
+  // Ref keeps the current liveGameMode accessible from effects without adding it to deps
+  const liveGameModeRef = useRef(gameMode);
 
   const [showFact, setShowFact] = useState(false);
   const [currentFact, setCurrentFact] = useState(null);
@@ -1473,6 +1476,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
           // Critical for joiners who don't have ?mode= in their URL.
           if (state.gameMode && state.gameMode !== liveGameMode) {
             setLiveGameMode(state.gameMode);
+            liveGameModeRef.current = state.gameMode;
           }
         });
 
@@ -1588,7 +1592,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
         }
         
         const data = await response.json();
-        console.log(`✅ Loaded ${data.length} players for ${mode} mode`);
+        console.log(`✅ Loaded ${data.length} players for ${liveGameMode} mode`);
         console.log('🎯 Sample players:', data.slice(0, 5));
         
         // Store originals for display; build normalized version for Fuse
@@ -1618,21 +1622,25 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
     loadPlayers();
   }, [liveGameMode]);
 
-  // Show a DYK fact once per calendar day per mode, on first game entry
+  // Show a DYK fact once per calendar day per mode, only after players actually loaded.
+  // Uses liveGameModeRef so it always reads the current mode without being in deps
+  // (avoids firing twice if liveGameMode syncs from server after load completes).
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && playerDatabaseRef.current.length > 0) {
+      const mode = liveGameModeRef.current;
       const today = new Date().toDateString();
-      const storageKey = `az_fact_${(liveGameMode || 'x').split('-')[0]}`;
+      const type = (mode || 'football').split('-')[0];
+      const storageKey = `az_fact_${type}`;
       try {
         const lastDate = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
         if (lastDate !== today) {
-          showRandomFact(liveGameMode);
+          showRandomFact(mode);
           if (typeof window !== 'undefined') localStorage.setItem(storageKey, today);
         }
-      } catch (_) { /* localStorage unavailable */ }
+      } catch (_) { /* localStorage unavailable in some envs */ }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, liveGameMode]);
+  }, [isLoading]);
 
   const handleStartGame = () => {
     if (!socket || connectionStatus !== 'connected') {
@@ -1667,7 +1675,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
     );
     const pick = available[Math.floor(Math.random() * available.length)];
     usedFactIndicesRef.current.push(pick);
-    setCurrentFact(FOOTBALL_FACTS[pick]);
+    setCurrentFact(facts[pick]);
     setShowFact(true);
   };
 
@@ -1683,16 +1691,29 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
     console.log('📝 Validation result:', validation);
     console.log('🎯 Player database size:', playerDatabaseRef.current.length);
     
+    const fullPoints = LETTER_SCORES[gameState.currentLetter] || 1;
+    const points = validation.valid
+      ? (validation.isPartial ? Math.max(1, Math.floor(fullPoints / 2)) : fullPoints)
+      : 0;
+
     socket.emit('submit-answer', {
       roomId,
       playerName,
       answer,
       isValid: validation.valid,
       matchedPlayer: validation.matchedPlayer,
-      points: validation.valid ? LETTER_SCORES[gameState.currentLetter] : 0
+      points,
     });
-    
-    setMessage(validation.valid ? `✅ "${answer}"` : `❌ "${answer}" - ${validation.reason}`);
+
+    if (validation.valid) {
+      if (validation.isPartial) {
+        setMessage(`⚡ Close! "${validation.matchedPlayer}" — ${points} pts (half)`);
+      } else {
+        setMessage(`✅ "${validation.matchedPlayer}" — ${points} pts`);
+      }
+    } else {
+      setMessage(`❌ "${answer}" — ${validation.reason}`);
+    }
   };
 
   // Validation function
@@ -1784,8 +1805,11 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
             });
 
             if (!conflictsWithUsed) {
-              console.log(`✅ Fuzzy match: "${trimmedInput}" -> "${matchedPlayer}" (score: ${result.score})`);
-              return { valid: true, matchedPlayer };
+              // Partial scoring: very close (score < 0.2) = full points
+              //                  fuzzy match (score 0.2–0.6)  = half points
+              const isPartial = result.score >= 0.2;
+              console.log(`✅ ${isPartial ? 'Partial' : 'Exact'} match: "${trimmedInput}" -> "${matchedPlayer}" (score: ${result.score.toFixed(3)})`);
+              return { valid: true, matchedPlayer, isPartial };
             }
           }
         }
@@ -2060,9 +2084,9 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
                     <div className="gb-player-name">{name}{isYou && <span className="gb-you-badge">YOU</span>}</div>
                     <div className="gb-player-pts">{gameState.scores[name] || 0}<span>pts</span></div>
                   </div>
-                  <div className={`gb-player-status ${ans ? (ans.isValid ? 'gb-status-ok' : 'gb-status-err') : ''}`}>
+                  <div className={`gb-player-status ${ans ? (ans.isValid ? (ans.points < LETTER_SCORES[gameState.currentLetter] ? 'gb-status-partial' : 'gb-status-ok') : 'gb-status-err') : ''}`}>
                     {ans
-                      ? `${ans.isValid ? '✅' : '❌'} ${ans.answer}`
+                      ? `${ans.isValid ? (ans.points < LETTER_SCORES[gameState.currentLetter] ? '⚡' : '✅') : '❌'} ${ans.answer}${ans.isValid && ans.points ? ` (+${ans.points})` : ''}`
                       : gameState.isActive ? '⏳ Thinking…' : '— Ready'}
                   </div>
                 </div>
