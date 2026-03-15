@@ -41,8 +41,8 @@ export default function SignIn() {
             <div className="card-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V21h19.2v-1.8c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
             </div>
-            <h1>Sign in to A-Z Trivia</h1>
-            <p>Save your scores, climb the leaderboard, and challenge friends.</p>
+            <h1>Welcome to A-Z Trivia</h1>
+            <p>Sign in to save your scores, climb the leaderboard, and challenge friends.</p>
 
             {error && <div className="error-msg">{error}</div>}
 
@@ -60,35 +60,49 @@ export default function SignIn() {
               {loading ? 'Signing in…' : 'Sign in with Google'}
             </button>
 
-            <Link href="/" className="play-btn">Play without account →</Link>
+            <Link href="/" className="play-btn">Continue as guest</Link>
           </div>
         </main>
 
         <style jsx>{`
           .page { min-height: 100vh; background: #070b14; color: #e8eaf0; font-family: 'Inter', system-ui, sans-serif; }
-          .main { display: flex; justify-content: center; padding: 60px 20px; }
-          .signin-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 48px 40px; text-align: center; max-width: 400px; width: 100%; }
-          .card-icon { color: #00d4ff; margin-bottom: 20px; }
-          .signin-card h1 { font-size: 1.6rem; font-weight: 900; margin: 0 0 12px; }
-          .signin-card p { color: #9ba3b8; line-height: 1.6; margin: 0 0 32px; font-size: 0.95rem; }
-          .error-msg { background: rgba(255,80,80,0.12); border: 1px solid rgba(255,80,80,0.3); color: #ff7070; border-radius: 10px; padding: 10px 14px; font-size: 0.87rem; margin-bottom: 20px; }
-          .google-btn {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 14px 20px; border-radius: 14px;
-            background: #fff; border: none; color: #3c4043;
-            font-size: 0.95rem; font-weight: 600; cursor: pointer;
-            margin-bottom: 20px; transition: all 0.2s;
+          .main { display: flex; justify-content: center; padding: 80px 20px; }
+          .signin-card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 28px; padding: 52px 44px; text-align: center;
+            max-width: 420px; width: 100%;
           }
-          .google-btn:hover:not(:disabled) { background: #f8f9fa; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-          .google-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+          .card-icon { color: #00d4ff; margin-bottom: 24px; }
+          .signin-card h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.02em; margin: 0 0 14px; }
+          .signin-card p { color: #9ba3b8; line-height: 1.65; margin: 0 0 36px; font-size: 1.05rem; }
+          .error-msg {
+            background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3);
+            color: #ff7070; border-radius: 12px; padding: 12px 16px;
+            font-size: 0.95rem; margin-bottom: 20px;
+          }
+          .google-btn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 15px 20px; border-radius: 14px;
+            background: #fff; border: none; color: #3c4043;
+            font-size: 1rem; font-weight: 600; font-family: inherit;
+            cursor: pointer; margin-bottom: 14px; transition: all 0.2s;
+          }
+          .google-btn:hover:not(:disabled) { background: #f0f4f9; box-shadow: 0 4px 20px rgba(0,0,0,0.3); transform: translateY(-1px); }
+          .google-btn:disabled { opacity: 0.65; cursor: not-allowed; }
           .spinner {
             width: 18px; height: 18px; border-radius: 50%;
             border: 2px solid #ccc; border-top-color: #4285F4;
             animation: spin 0.7s linear infinite;
           }
           @keyframes spin { to { transform: rotate(360deg); } }
-          .play-btn { display: inline-block; color: #9ba3b8; font-size: 0.9rem; text-decoration: none; transition: color 0.2s; }
-          .play-btn:hover { color: #e8eaf0; }
+          .play-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 100%; padding: 13px 20px; border-radius: 14px;
+            color: #9ba3b8; font-size: 0.95rem; font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.1); text-decoration: none;
+            transition: all 0.2s;
+          }
+          .play-btn:hover { color: #e8eaf0; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
         `}</style>
       </div>
     </>
