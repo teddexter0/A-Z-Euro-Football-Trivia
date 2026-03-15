@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Link from 'next/link';
+import Nav from '../components/Nav';
 
 // ── Game type configs ─────────────────────────────────────────────────────────
 const GAME_TYPES = [
@@ -126,27 +126,7 @@ export default function Home() {
       <div className="home-container">
 
         {/* Navigation */}
-        <nav className="top-nav">
-          <span className="nav-logo">A–Z</span>
-          <div className="nav-links">
-            <Link href="/" className="nav-link nav-link--active">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              Play
-            </Link>
-            <Link href="/leaderboard" className="nav-link">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h2v-5zm4-7H9v12h2V7zm4 3h-2v9h2v-9zm4-6h-2v15h2V4z"/></svg>
-              Leaderboard
-            </Link>
-            <Link href="/friends" className="nav-link">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-              Friends
-            </Link>
-          </div>
-          <Link href="/signin" className="signin-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V21h19.2v-1.8c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-            Sign In
-          </Link>
-        </nav>
+        <Nav active="play" />
 
         {/* Animated pitch lines background */}
         <div className="pitch-overlay" aria-hidden="true">
@@ -357,41 +337,6 @@ export default function Home() {
       </div>
 
       <style jsx>{`
-        /* ── Top Nav ─────────────────────────────── */
-        .top-nav {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 4px 14px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-          margin-bottom: 0;
-          position: relative; z-index: 2;
-        }
-        .nav-logo {
-          font-size: 1.3rem; font-weight: 900;
-          background: linear-gradient(135deg,#00ff87,#00d4ff);
-          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .nav-links { display: flex; gap: 6px; }
-        .nav-link {
-          display: flex; align-items: center; gap: 5px;
-          padding: 7px 13px; border-radius: 20px; font-size: 0.83rem;
-          font-weight: 600; text-decoration: none; color: #9ba3b8;
-          border: 1px solid transparent; transition: all 0.2s;
-        }
-        .nav-link:hover { color: #e8eaf0; background: rgba(255,255,255,0.05); }
-        .nav-link--active {
-          color: #00ff87; border-color: rgba(0,255,135,0.25);
-          background: rgba(0,255,135,0.07);
-        }
-        .signin-btn {
-          display: flex; align-items: center; gap: 6px;
-          padding: 8px 16px; border-radius: 20px; font-size: 0.83rem;
-          font-weight: 700; text-decoration: none; color: #e8eaf0;
-          background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
-          transition: all 0.2s; white-space: nowrap;
-        }
-        .signin-btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.28); }
-
         /* ── Root ────────────────────────────────── */
         .home-container {
           min-height: 100vh;
