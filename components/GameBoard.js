@@ -1372,6 +1372,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
   const [playerInput, setPlayerInput] = useState('');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [pausedBy, setPausedBy] = useState(null);
@@ -1503,6 +1504,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
             isActive: true
           }));
           setSubmitted(false);
+          setIsValidating(false);
           setPlayerInput('');
           setMessage(`🎯 Letter ${data.letter}!`);
           setTimeout(() => setMessage(''), 2000);
@@ -1679,19 +1681,82 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
     setShowFact(true);
   };
 
-  const handleSubmitAnswer = () => {
-    if (submitted || !socket || !gameState.isActive) return;
-    
+  // Get top Fuse candidates (without committing to a match) for Claude context
+  const getFuseCandidates = (normalizedInput) => {
+    if (!fuseRef.current || playerDatabaseRef.current.length === 0) return [];
+    const results = fuseRef.current.search(normalizedInput);
+    return results.slice(0, 5).map(r => ({
+      name: playerDatabaseRef.current[r.refIndex],
+      score: r.score,
+    }));
+  };
+
+  // Call Claude API to validate; returns null on failure (triggers fallback)
+  const askClaude = async (input, letter, candidates) => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
+      const res = await fetch('/api/validate-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input, letter, gameMode: liveGameMode, candidates }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null; // timeout or network error → fall back to Fuse
+    }
+  };
+
+  const handleSubmitAnswer = async () => {
+    if (submitted || isValidating || !socket || !gameState.isActive) return;
+
     const answer = playerInput.trim();
     if (!answer) return;
-    
+
+    const letter = gameState.currentLetter;
+    const fullPoints = LETTER_SCORES[letter] || 1;
+
+    // ── Step 1: Run local validation (sync, instant) ─────────────────────────
+    const localResult = validatePlayer(answer, letter);
+
+    // If local result is a clear exact match, skip Claude to save latency
+    const isClearExact = localResult.valid && !localResult.isPartial;
+
+    let validation = localResult;
+
+    if (!isClearExact) {
+      // ── Step 2: Ask Claude for uncertain / no-match cases ──────────────────
+      setIsValidating(true);
+      setMessage('🤔 Checking…');
+
+      const normalizedInput = normalizePlayerName(answer);
+      const candidates = getFuseCandidates(normalizedInput);
+      const claudeResult = await askClaude(answer, letter, candidates);
+
+      setIsValidating(false);
+
+      if (claudeResult && typeof claudeResult.valid === 'boolean') {
+        // Claude succeeded — use its result
+        validation = {
+          valid: claudeResult.valid,
+          matchedPlayer: claudeResult.matchedName || answer,
+          isPartial: claudeResult.isPartial || false,
+          source: 'claude',
+        };
+        console.log('🤖 Claude validation:', claudeResult);
+      } else {
+        // Claude failed or timed out — stick with local Fuse result
+        console.log('⚠️ Claude unavailable, using local Fuse result');
+      }
+    }
+
     setSubmitted(true);
-    const validation = validatePlayer(answer, gameState.currentLetter);
-    
-    console.log('📝 Validation result:', validation);
+    console.log('📝 Final validation:', validation);
     console.log('🎯 Player database size:', playerDatabaseRef.current.length);
-    
-    const fullPoints = LETTER_SCORES[gameState.currentLetter] || 1;
+
     const points = validation.valid
       ? (validation.isPartial ? Math.max(1, Math.floor(fullPoints / 2)) : fullPoints)
       : 0;
@@ -1712,7 +1777,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
         setMessage(`✅ "${validation.matchedPlayer}" — ${points} pts`);
       }
     } else {
-      setMessage(`❌ "${answer}" — ${validation.reason}`);
+      setMessage(`❌ "${answer}" — not found`);
     }
   };
 
@@ -2043,21 +2108,21 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
             <div className="gb-answer-row">
               <input
                 type="text"
-                className={`gb-answer-input ${submitted ? 'gb-answer-input--sent' : isPaused ? 'gb-answer-input--paused' : ''}`}
+                className={`gb-answer-input ${submitted || isValidating ? 'gb-answer-input--sent' : isPaused ? 'gb-answer-input--paused' : ''}`}
                 value={playerInput}
                 onChange={e => setPlayerInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !isPaused && handleSubmitAnswer()}
+                onKeyDown={e => e.key === 'Enter' && !isPaused && !isValidating && handleSubmitAnswer()}
                 placeholder={`${getEntityLabel(liveGameMode)} starting with ${gameState.currentLetter}…`}
-                disabled={submitted || isPaused}
+                disabled={submitted || isValidating || isPaused}
                 autoComplete="off"
                 autoFocus
               />
               <button
-                className={`gb-btn ${submitted ? 'gb-btn-sent' : isPaused ? 'gb-btn-disabled' : 'gb-btn-green'} gb-submit-btn`}
+                className={`gb-btn ${submitted ? 'gb-btn-sent' : isValidating ? 'gb-btn-disabled' : isPaused ? 'gb-btn-disabled' : 'gb-btn-green'} gb-submit-btn`}
                 onClick={handleSubmitAnswer}
-                disabled={submitted || !playerInput.trim() || isPaused}
+                disabled={submitted || isValidating || !playerInput.trim() || isPaused}
               >
-                {submitted ? '✅ Sent' : isPaused ? '⏸' : 'Submit →'}
+                {submitted ? '✅ Sent' : isValidating ? '🤔…' : isPaused ? '⏸' : 'Submit →'}
               </button>
             </div>
           )}
