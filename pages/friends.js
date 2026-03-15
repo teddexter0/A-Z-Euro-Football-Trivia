@@ -26,8 +26,8 @@ export default function Friends() {
             <div className="coming-icon">🔒</div>
             <h2>Sign-in required</h2>
             <p>
-              Once you're signed in with Google and have chosen a <strong>unique username</strong>, you can
-              search for friends, send requests, and see each other's stats.
+              Once you&apos;re signed in with Google and have chosen a <strong>unique username</strong>, you can
+              search for friends, send requests, and see each other&apos;s stats.
             </p>
 
             <div className="rules-box">
@@ -44,8 +44,8 @@ export default function Friends() {
             <div className="coming-steps">
               <div className="step">1. Sign in with Google</div>
               <div className="step">2. Choose your unique username</div>
-              <div className="step">3. Search for a friend's username</div>
-              <div className="step">4. Send a friend request — they accept and you're connected</div>
+              <div className="step">3. Search for a friend&apos;s username</div>
+              <div className="step">4. Send a friend request — they accept and you&apos;re connected</div>
               <div className="step">5. See their recent scores and challenge them to a game</div>
             </div>
 
