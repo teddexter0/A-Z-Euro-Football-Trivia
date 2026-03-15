@@ -1169,6 +1169,9 @@ const GB_STYLES = `
     background: rgba(245,158,11,0.04);
   }
   .gb-submit-btn { flex-shrink: 0; min-width: 110px; }
+  .gb-btn-skip { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #9ba3b8; }
+  .gb-btn-skip:hover { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #f59e0b; }
+  .gb-skip-btn { flex-shrink: 0; }
   .gb-message {
     border-radius: 10px; padding: 12px 16px;
     font-weight: 700; font-size: 0.95rem;
@@ -1532,7 +1535,25 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
 
         newSocket.on('game-complete', (data) => {
           console.log('🏆 Game complete:', data.winner);
-          setGameState(prev => ({ ...prev, winner: data.winner, isActive: false }));
+          setGameState(prev => {
+            // Fire confetti based on this player's final rank
+            import('canvas-confetti').then(m => {
+              const confetti = m.default;
+              const sorted = Object.entries(data.scores || {}).sort(([,a],[,b]) => b - a);
+              const rank = sorted.findIndex(([p]) => p === playerName);
+              if (rank === 0) {
+                // Winner — big burst + side cannons
+                confetti({ particleCount: 180, spread: 100, origin: { y: 0.55 } });
+                setTimeout(() => confetti({ particleCount: 80, angle: 60,  spread: 60, origin: { x: 0, y: 0.6 } }), 300);
+                setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1, y: 0.6 } }), 500);
+              } else if (rank === 1) {
+                confetti({ particleCount: 90, spread: 70, origin: { y: 0.55 } });
+              } else if (rank === 2) {
+                confetti({ particleCount: 45, spread: 50, origin: { y: 0.55 } });
+              }
+            }).catch(() => {});
+            return { ...prev, scores: data.scores || prev.scores, winner: data.winner, isActive: false };
+          });
         });
 
         newSocket.on('error-message', (data) => {
@@ -1708,6 +1729,20 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
     } catch {
       return null; // timeout or network error → fall back to Fuse
     }
+  };
+
+  const handleSkipTurn = () => {
+    if (submitted || isValidating || !socket || !gameState.isActive || isPaused) return;
+    setSubmitted(true);
+    setMessage('⏭ Skipped — 0 pts');
+    socket.emit('submit-answer', {
+      roomId,
+      playerName,
+      answer: '[skip]',
+      isValid: false,
+      matchedPlayer: null,
+      points: 0,
+    });
   };
 
   const handleSubmitAnswer = async () => {
@@ -1947,7 +1982,9 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
                 key={player}
                 className={`gb-score-row ${player === gameState.winner ? 'gb-score-row--winner' : ''}`}
               >
-                <span className="gb-score-rank">#{i + 1}</span>
+                <span className="gb-score-rank">
+                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                </span>
                 <span className="gb-score-pname">{player}</span>
                 <span className="gb-score-pts">{score} pts</span>
               </div>
@@ -2124,6 +2161,15 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
               >
                 {submitted ? '✅ Sent' : isValidating ? '🤔…' : isPaused ? '⏸' : 'Submit →'}
               </button>
+              {!submitted && !isValidating && !isPaused && (
+                <button
+                  className="gb-btn gb-btn-skip gb-skip-btn"
+                  onClick={handleSkipTurn}
+                  title="Skip this letter (0 points)"
+                >
+                  ⏭ Skip
+                </button>
+              )}
             </div>
           )}
 

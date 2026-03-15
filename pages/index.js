@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Nav from '../components/Nav';
+import { useAuth } from '../lib/auth';
 
 // ── Game type configs ─────────────────────────────────────────────────────────
 const GAME_TYPES = [
@@ -58,6 +59,7 @@ const MUSIC_ERAS = [
 ];
 
 export default function Home() {
+  const { user } = useAuth() ?? {};
   const [playerName, setPlayerName] = useState('');
   const [roomId, setRoomId]         = useState('');
   const [gameType, setGameType]     = useState('football');
@@ -66,6 +68,13 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining]   = useState(false);
   const router = useRouter();
+
+  // Auto-fill name from Google account
+  useEffect(() => {
+    if (user?.displayName && !playerName) {
+      setPlayerName(user.displayName.split(' ')[0]);
+    }
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fullMode = useMemo(() => {
     if (gameType === 'music') return `music-${subMode}-${musicEra}`;
