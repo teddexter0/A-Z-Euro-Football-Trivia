@@ -20,14 +20,14 @@ export default function Leaderboard() {
 
         <main className="main">
           <h1 className="page-title">🏆 Leaderboard</h1>
-          <p className="page-sub">See who's topping the charts across all categories.</p>
+          <p className="page-sub">See who&apos;s topping the charts across all categories.</p>
 
           <div className="coming-card">
             <div className="coming-icon">🔒</div>
             <h2>Sign-in required</h2>
             <p>
               The leaderboard tracks all-time points and wins per player.
-              It's ready in the backend — it just needs <strong>Google Sign-In</strong> to be wired up.
+              It&apos;s ready in the backend — it just needs <strong>Google Sign-In</strong> to be wired up.
             </p>
             <div className="coming-steps">
               <div className="step">1. Deploy Firebase (see <code>FIREBASE_GEMINI_PROMPT.md</code>)</div>

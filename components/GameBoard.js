@@ -1639,7 +1639,7 @@ const GameBoard = ({ roomId, playerName, gameMode = 'football-modern' }) => {
           showRandomFact(mode);
           if (typeof window !== 'undefined') localStorage.setItem(storageKey, today);
         }
-      } catch (_) { /* localStorage unavailable in some envs */ }
+      } catch { /* localStorage unavailable in some envs */ }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
