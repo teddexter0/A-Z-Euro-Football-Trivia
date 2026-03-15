@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { useAuth } from '../pages/_app';
+import { useAuth } from '../lib/auth';
 
 // active: 'play' | 'leaderboard' | 'friends'
 export default function Nav({ active }) {

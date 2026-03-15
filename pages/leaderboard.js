@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Nav from '../components/Nav';
-import { useAuth } from './_app';
+import { useAuth } from '../lib/auth';
 
 export default function Leaderboard() {
   const { user, loading } = useAuth() ?? {};
