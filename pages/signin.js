@@ -1,28 +1,55 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 import Nav from '../components/Nav';
+
+// Popup is unreliable on mobile — detect and use redirect instead
+const isMobile = () =>
+  typeof navigator !== 'undefined' &&
+  /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const router = useRouter();
 
+  // Handle the redirect result when Google sends the user back
+  useEffect(() => {
+    setLoading(true);
+    getRedirectResult(auth)
+      .then(result => {
+        if (result?.user) {
+          router.push(router.query.from || '/');
+        }
+      })
+      .catch(err => {
+        if (err.code && err.code !== 'auth/no-current-user') {
+          setError('Sign-in failed. Please try again.');
+          console.error(err);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
     try {
-      await signInWithPopup(auth, googleProvider);
-      router.push(router.query.from || '/');
+      if (isMobile()) {
+        // Redirect flow — page navigates away, result handled in useEffect above
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        await signInWithPopup(auth, googleProvider);
+        router.push(router.query.from || '/');
+      }
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user') {
         setError('Sign-in failed. Please try again.');
         console.error(err);
       }
-    } finally {
       setLoading(false);
     }
   };
@@ -57,7 +84,7 @@ export default function SignIn() {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
               )}
-              {loading ? 'Signing in…' : 'Sign in with Google'}
+              {loading ? 'Redirecting to Google…' : 'Sign in with Google'}
             </button>
 
             <Link href="/" className="play-btn">Continue as guest</Link>
